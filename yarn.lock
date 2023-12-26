@@ -1624,6 +1624,8 @@ __metadata:
     "@types/react": "npm:^18.2.37"
     "@typescript-eslint/eslint-plugin": "npm:^6.12.0"
     "@typescript-eslint/parser": "npm:^6.12.0"
+    "@vercel/analytics": "npm:^1.1.1"
+    "@vercel/speed-insights": "npm:^1.0.2"
     autoprefixer: "npm:^10.4.16"
     clsx: "npm:^2.0.0"
     eslint: "npm:^8.54.0"
@@ -1636,7 +1638,6 @@ __metadata:
     prettier: "npm:3.1.0"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
-    react-parallax-tilt: "npm:^1.7.179"
     sass: "npm:^1.69.5"
     tailwind-merge: "npm:^2.0.0"
     tailwindcss: "npm:^3.3.5"
@@ -2476,6 +2477,22 @@ __metadata:
   version: 1.2.0
   resolution: "@ungap/structured-clone@npm:1.2.0"
   checksum: c6fe89a505e513a7592e1438280db1c075764793a2397877ff1351721fe8792a966a5359769e30242b3cd023f2efb9e63ca2ca88019d73b564488cc20e3eab12
+  languageName: node
+  linkType: hard
+
+"@vercel/analytics@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@vercel/analytics@npm:1.1.1"
+  dependencies:
+    server-only: "npm:^0.0.1"
+  checksum: fece944678360085a5deaea3afdade16cab67097dca6585e02a1c4c67ac3ba91b8e0bb848b7ec686b87757aad763df5bae41ce103bdc16c6e586b9390d0b4c11
+  languageName: node
+  linkType: hard
+
+"@vercel/speed-insights@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@vercel/speed-insights@npm:1.0.2"
+  checksum: cbb301dc2bb599024a5f5762e5deecc0ec5fcef1074e7505da5cc5fb824e7d9c5c5e6f13a3460912a5476f99fe53bdb15801e0bbdb385fbc15f98c3a2cb9e237
   languageName: node
   linkType: hard
 
@@ -7808,16 +7825,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-parallax-tilt@npm:^1.7.179":
-  version: 1.7.179
-  resolution: "react-parallax-tilt@npm:1.7.179"
-  peerDependencies:
-    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 6c10feaeaccbeb9f71e7d43c547ceb03c30ede6659c2f79a709648a1f75b13be7a7cdcb3701533436c7d65bad9025c3fdc6ba4e489c103a08c1e025f457be74a
-  languageName: node
-  linkType: hard
-
 "react@npm:^18.2.0":
   version: 18.2.0
   resolution: "react@npm:18.2.0"
@@ -8260,6 +8267,13 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 985dec0d372370229a262c737063860fabd4a1c730662c1ea3200a2f649117761a42184c96df62a0e885e76fbd5dace41087d6c1ac0351b13c0df5d6bcb1b5ac
+  languageName: node
+  linkType: hard
+
+"server-only@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "server-only@npm:0.0.1"
+  checksum: c432348956641ea3f460af8dc3765f3a1bdbcf7a1e0205b0756d868e6e6fe8934cdee6bff68401a1dd49ba4a831c75916517a877446d54b334f7de36fa273e53
   languageName: node
   linkType: hard
 

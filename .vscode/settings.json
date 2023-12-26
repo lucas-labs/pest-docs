@@ -29,7 +29,7 @@
         ".next": true,
         "out": true,
         "next-env.d.ts": true,
-        "yarn.lock": true,
+        // "yarn.lock": true,
         ".prettierignore": true,
         // ".gitignore": true,
         ".git": true,
