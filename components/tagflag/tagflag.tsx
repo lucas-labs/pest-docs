@@ -18,6 +18,7 @@ const linkClasses = [
 interface TagflagProps extends HTMLAttributes<HTMLElement> {
     to?: string;
     on?: 'blank' | 'self' | 'parent' | 'top';
+    height?: string;
     icon?: ElementType<{ className?: string }>;
     iconClassName?: string;
 }
@@ -47,7 +48,7 @@ export const Tagflag = ({
     const content = (
         <span {...props} className={cn(classes, 'inline-flex items-center gap-x-1')}>
             {children}
-            {Icon && <Icon className={cn('h-[16px] text-[currentColor]', iconClassName)} />}
+            {Icon && <Icon className={cn(`h-[16px] text-[currentColor]`, iconClassName)} />}
         </span>
     );
 
@@ -99,7 +100,6 @@ export const PestTag = ({
     <Tagflag
         {...props}
         className={cn(className, 'font-mono', '[text-underline-position:under]')}
-        // iconClassName="text-[#642102]"
         icon={noicon ? undefined : PestIcon}
         to={to}
         on={on}

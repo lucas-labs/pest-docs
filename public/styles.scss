@@ -17,7 +17,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: #db4a01 !important;
+    color: c.$secondary !important;
 }
 
 code,
@@ -37,7 +37,6 @@ pre {
 
 :is(html[class~='dark']) {
     body {
-        background-color: rgba(c.$bg, 1) !important;
         background-color: rgba(c.$bg, 1) !important;
     }
 

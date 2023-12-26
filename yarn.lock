@@ -1518,7 +1518,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@headlessui/react@npm:^1.7.10":
+"@headlessui/react@npm:^1.7.10, @headlessui/react@npm:^1.7.17":
   version: 1.7.17
   resolution: "@headlessui/react@npm:1.7.17"
   dependencies:
@@ -1615,6 +1615,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@lucaslabs/pest-docs@workspace:."
   dependencies:
+    "@headlessui/react": "npm:^1.7.17"
     "@next/eslint-plugin-next": "npm:^14.0.3"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/eslint": "npm:^8"
@@ -1635,6 +1636,7 @@ __metadata:
     prettier: "npm:3.1.0"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
+    react-parallax-tilt: "npm:^1.7.179"
     tailwind-merge: "npm:^2.0.0"
     tailwindcss: "npm:^3.3.5"
     typescript: "npm:^5.2.2"
@@ -7802,6 +7804,16 @@ __metadata:
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: 5aa564a1cde7d391ac980bedee21202fc90bdea3b399952117f54fb71a932af1e5902020144fb354b4690b2414a0c7aafe798eb617b76a3d441d956db7726fdf
+  languageName: node
+  linkType: hard
+
+"react-parallax-tilt@npm:^1.7.179":
+  version: 1.7.179
+  resolution: "react-parallax-tilt@npm:1.7.179"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 6c10feaeaccbeb9f71e7d43c547ceb03c30ede6659c2f79a709648a1f75b13be7a7cdcb3701533436c7d65bad9025c3fdc6ba4e489c103a08c1e025f457be74a
   languageName: node
   linkType: hard
 

@@ -22,6 +22,7 @@
     },
     "homepage": "https://github.com/lucas-labs/pest-docs#readme",
     "dependencies": {
+        "@headlessui/react": "^1.7.17",
         "@types/react": "^18.2.37",
         "clsx": "^2.0.0",
         "katex": "^0.16.9",
@@ -30,6 +31,7 @@
         "nextra-theme-docs": "^2.13.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "react-parallax-tilt": "^1.7.179",
         "tailwind-merge": "^2.0.0"
     },
     "devDependencies": {

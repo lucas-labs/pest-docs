@@ -3,13 +3,10 @@
         "title": "Home",
         "type": "page",
         "theme": {
-            "timestamp": true,
-            "typesetting": "article"
+            "timestamp": false,
+            "navbar": true,
+            "layout": "full"
         }
-    },
-    "test": {
-        "title": "Test",
-        "type": "page"
     },
     "docs": {
         "title": "Documentation",
