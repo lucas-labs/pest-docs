@@ -1,0 +1,215 @@
+import { PestTag } from '@components';
+
+# Exception Handling
+
+<PestTag/> ships with a built-in exception handling layer designed to gracefully handle exceptions in 
+your application.
+
+This layer is responsible for transforming any exception raised while handling requests into a
+friendly `JSON` API response.
+
+It works by defining different exception handlers that can be triggered based on the type of the
+exception. When there's not a specific handler for the exception type, the generic handler will be
+used.
+
+By default, if an exception is unrecognized by any of the handlers, a generic error message will be
+returned with a `500` status code.
+
+```json
+{
+  "statusCode": 500,
+  "error": "Internal server error"
+}
+```
+
+## HTTP Exceptions
+
+HTTP protocol provides a wide range of status codes to describe the result of a request. In most
+cases, you'll want to return a specific status code when an exception is thrown.
+
+You might want, for example: 
+
+- return a `404` HTTP status code when a requested model is not found in the database. 
+- return a `403` HTTP status code when a user is not authorized to perform an action.
+- return a `400` HTTP status code when the request sent by the client is invalid or malformed.
+
+`pest` (actually, [starlette](https://www.starlette.io/exceptions/)) provides a convenient way to 
+raise exceptions that will be handled and translated into the appropriate HTTP response with
+the correct status code: `HTTPException`.
+
+```python
+from pest import HTTPException
+
+@get("/{id}")
+def get(self, id: int) -> HauntedHouse:
+    house = self.service.get_by_id(id)
+
+    if not house:
+        raise HTTPException(status_code=404, detail="House not found")
+```
+
+In the above example, if the requested house is not found, a `404` HTTP response will be returned
+with the following payload:
+
+```json
+{
+  "statusCode": 404,
+  "error": "Not Found",
+  "message": "House not found"
+}
+```
+
+## Subclassing HTTP Exceptions
+
+The eception handler that catches `HTTPException` will also catch any subclass of it (unless a more
+specific handler is defined).
+
+This allows you to create your own exceptions that will be handled by the generic handler.
+
+```python
+from pest.exceptions import HTTPException
+
+class HouseNotFoundException(HTTPException):
+    def __init__(self, id: int):
+        super().__init__(status_code=404, detail=f"House {id} not found")
+```
+
+But in most cases, you won't need to, as `pest` already provides a set of exceptions that you can
+use out of the box.
+
+### Built-in HTTP Exceptions
+
+<PestTag/> provides a set of `HTTPException` exception subclasses that you can use out of the box:
+
+- `BadRequestException` (HTTP 400)
+- `UnauthorizedException` (HTTP 401)
+- `ForbiddenException` (HTTP 403)
+- `NotFoundException` (HTTP 404)
+- `MethodNotAllowedException` (HTTP 405)
+- `NotAcceptableException` (HTTP 406)
+- `ProxyAuthenticationRequiredException` (HTTP 407)
+- `RequestTimeoutException` (HTTP 408)
+- `ConflictException` (HTTP 409)
+- `GoneException` (HTTP 410)
+- `PreconditionFailedException` (HTTP 412)
+- `PayloadTooLargeException` (HTTP 413)
+- `UnsupportedMediaTypeException` (HTTP 415)
+- `ImATeapotException` (HTTP 418)
+- `UnprocessableEntityException` (HTTP 422)
+- `InternalServerErrorException` (HTTP 500)
+- `NotImplementedException` (HTTP 501)
+- `BadGatewayException` (HTTP 502)
+- `ServiceUnavailableException` (HTTP 503)
+- `GatewayTimeoutException` (HTTP 504)
+- `HttpVersionNotSupportedException` (HTTP 505)
+
+So, instead of raising a generic `HTTPException`, you can raise a more specific exception, which
+helps to make your code more expressive.
+
+```python
+from pest.exceptions import NotFoundException
+
+@get("/{id}")
+def get(self, id: int) -> HauntedHouse:
+    house = self.service.get_by_id(id)
+
+    if not house:
+        raise NotFoundException(detail="House not found")
+```
+
+# Custom Exception Handlers
+
+The exception handling layer is extensible, which means you can define your own exception handlers
+to handle specific exceptions or even override the built-in ones.
+
+While the generic exception handler is enough for most cases, you might want additional control over
+how exceptions are handled in your application.
+
+Let's say you want to return a custom JSON response when a `HauntedHouseNotFoundException` is
+raised.
+
+```python
+async def haunted_house_not_found(
+    request: Request, exc: HauntedHouseNotFoundException
+) -> JSONResponse:
+    """Handles HauntedHouseNotFoundException exceptions"""
+    return JSONResponse(
+        status_code=404,
+        content={"message": f"House {exc.id} not found"},
+    )
+```
+
+To register this handler, you need to add it to the `exception_handlers` list during the
+application initialization.
+
+```python
+app = Pest.create(
+    exception_handlers={
+        HauntedHouseNotFoundException: haunted_house_not_found
+    }
+)
+```
+
+`exception_handlers` is a dictionary where the keys are the exception types and the values are
+corresponding exception handlers.
+
+Now, when a `HauntedHouseNotFoundException` is raised, the `haunted_house_not_found` handler will
+be called and the response returned by it will be sent to the client. In this case, the response
+will be:
+
+```json
+{
+    "message": "House 1 not found"
+}
+```
+
+### Other ways to register exception handlers
+
+#### `add_exception_handler` method
+
+That's not the only way to register exception handlers. You can also use the `add_exception_handler`
+method of the <PestTag/> application instance.
+
+```python
+app = Pest.create()
+
+app.add_exception_handler(
+    HauntedHouseNotFoundException, haunted_house_not_found
+)
+```
+
+<PestTag/> also provides a decorator that can be used to register multiple exception handlers at once.
+
+```python
+app = Pest.create()
+
+self.add_exception_handlers(
+    [
+        (HauntedHouseNotFoundException, haunted_house_not_found),
+        (HauntedHouseAlreadyExistsException, haunted_house_already_exists),
+    ]
+)
+```
+
+#### `exception_handler` decorator
+
+You can also use the `exception_handler` decorator to register exception handlers.
+
+```python
+app = Pest.create()
+
+@app.exception_handler(HauntedHouseNotFoundException)
+async def haunted_house_not_found(
+    request: Request, exc: HauntedHouseNotFoundException
+) -> JSONResponse:
+    """Handles HauntedHouseNotFoundException exceptions"""
+    return JSONResponse(
+        status_code=404,
+        content={"message": f"House {exc.id} not found"},
+    )
+```
+
+## Per-Controller and Per-Route Exception Filters
+
+Attaching exception handlers to specific controllers or routes is yet not supported by `pest`, but
+it's on the roadmap.

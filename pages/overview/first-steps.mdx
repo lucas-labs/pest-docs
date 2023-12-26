@@ -1,0 +1,237 @@
+import { FileTree } from 'nextra/components';
+import { Callout } from 'nextra/components';
+import { Table } from 'components/table';
+import { PestTag, FastapiTag, NestjsTag, GithubTag, StarletteTag } from '@components';
+
+# First steps
+
+In this section we will go through the basic steps to get started with <PestTag />.
+
+## Installation
+
+<PestTag/> is available on [PyPI](https://pypi.org/project/pest-core/), allowing you to install it
+with `pip`:
+
+```bash
+pip install pest-core
+```
+
+## Setting up a project
+
+One of <PestTag /> main goals is to assist you in organizing mid-sized to large web API projects
+conveniently.
+
+Drawing inspiration from philosophies like
+[MVC](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) and
+[DDD](https://en.wikipedia.org/wiki/Domain-driven_design), <PestTag /> provides a set of components
+that you can leverage to build and structure your project.
+
+### Example project structure
+
+A <PestTag /> app might look something like this:
+
+<FileTree>
+    <FileTree.Folder name="app" defaultOpen>
+        <FileTree.Folder name="modules" defaultOpen>
+            <FileTree.Folder name="auth" defaultOpen>
+                <FileTree.File name="auth_controller.py" />
+                <FileTree.File name="auth_service.py" />
+                <FileTree.File name="auth_module.py" />
+            </FileTree.Folder>
+            <FileTree.Folder name="haunted_house" defaultOpen>
+                <FileTree.File name="haunted_house_controller.py" />
+                <FileTree.File name="haunted_house_service.py" />
+                <FileTree.File name="haunted_house_module.py" />
+            </FileTree.Folder>
+        </FileTree.Folder>
+        <FileTree.File name="app_module.py" />
+        <FileTree.File name="main.py" />
+    </FileTree.Folder>
+</FileTree>
+
+<Callout type="info" emoji="ℹ️">
+    If you're comming from a **nestjs** background, you might found this kind of structure
+    familiar.
+</Callout>
+
+### Overview of the components
+
+Let's take a look at some of the different components that can make up a <PestTag /> app. In the 
+next chapters, we will delve into each of them in detail. This is just a quick overview to give you
+a general idea of how they all work together.
+
+<Table
+    headers={[{ content: 'Component' }, { content: 'Description' }]}
+    rows={[
+        [
+            { content: 'main.py', className: 'font-mono text-orange-400' },
+            {
+                content: `The entry point of your application. 
+                        It instantiates the app and all its modules`,
+            },
+        ],
+        [
+            { content: 'app_module.py', className: 'font-mono text-orange-400' },
+            {
+                content: `The main module of your application. 
+                        It imports all the other modules and registers them in the app`,
+            },
+        ],
+        [
+            { content: '*_module.py', className: 'font-mono text-orange-400' },
+            {
+                content: `Modules are the building blocks of your application. 
+                        They are responsible for registering controllers and services`,
+            },
+        ],
+        [
+            { content: '*_controller.py', className: 'font-mono text-orange-400' },
+            {
+                content: `Controllers are responsible for handling requests and returning
+                        responses. They are registered in modules and can be injected with 
+                        services and providers. Each controller is associated with a route path and
+                        defines different methods for handling requests made to that route or to its
+                        sub-routes.`,
+            },
+        ],
+        [
+            { content: '*_service.py', className: 'font-mono text-orange-400' },
+            {
+                content: `Services define the business logic of your application. 
+                        They are registered in modules and can be injected in routes, other services
+                        and middlewares.`,
+            },
+        ],
+    ]}
+/>
+
+#### The `main.py` file
+
+The `main.py` file serves as the entry point for your application. It instantiates the app from a 
+root module and a set of optional configuration parameters.
+
+```python filename="main.py"
+from pest import Pest
+from .app_module import AppModule
+
+# initialize the application using AppModule as the root module
+app = Pest.create(AppModule)
+```
+
+We utilize the `Pest.create` method to create an instance of the `PestApplication`.
+
+`PestApplication` is a subclass of `FastAPI`. Consequently, anything achievable with a `FastAPI` 
+app is also possible with a `PestApplication`.
+
+To start your application with [uvicorn](https://www.uvicorn.org/), you can use the following
+command:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+#### The `app_module.py` file
+
+The `app_module.py` file functions as the main module of your application.Typically, it imports all
+the other modules (also referred to as Feature Modules) and registers them in the app.
+
+```python filename="app_module.py"
+from pest.decorators import module
+
+from .modules.auth.auth_module import AuthModule
+from .modules.haunted_house.haunted_house_module import HauntedHouseModule
+
+@module(
+    imports=[
+        AuthModule,
+        HauntedHouseModule
+    ],
+)
+class AppModule:
+    pass
+```
+
+<Callout type="info" emoji="ℹ️">
+    The `@module` decorator marks a class as a module and accepts parameters that define its
+    behavior. In this case, we use the `imports` parameter to specify which modules should be 
+    imported by this one.
+</Callout>
+
+#### Feature Modules
+
+Feature modules are responsible for registering **controllers** and **services** specific to a
+particular business domain within your application.
+
+For instance, let's consider an `auth` module responsible for managing all authentication-related 
+logic. The module might look like this:
+
+```python filename="auth_module.py"
+from pest.decorators import module
+from .auth_controller import AuthController
+from .auth_service import AuthService
+
+@module(
+    controllers=[AuthController],
+    providers=[AuthService]
+)
+class AuthModule:
+    pass
+```
+
+The `AuthModule` registers:
+
+-   `AuthController` as a _controller_. This one will be responsible for handling requests to the 
+    `/auth` route and its sub-routes. It collaborates with the `AuthService` to execute the 
+    necessary business logic.
+
+-   `AuthService` as a _provider_, managing all business logic related to authentication.
+
+In this context, a `Controller` represents a group of related route handlers, processing requests
+to the same "parent" route of the `Controller`.
+
+In the example above, we can envision `AuthController` as a collection of route handlers processing
+all incoming requests to the `/auth` route and its sub-routes.
+
+<Callout type="info" emoji="ℹ️">
+    As you can observe, there isn't much distinction between a feature module and the main module; 
+    they are essentially the same. The primary dissimilarity lies in the fact that the main module 
+    is the first one to be loaded by the app, serving as the top of the module hierarchy.
+</Callout>
+
+#### Controllers
+
+Controllers handle requests and return responses. They are registered in modules and can be injected
+with services and providers. Each controller is associated with a route path and defines different 
+methods for handling requests made to that route or its sub-routes.
+
+```python filename="haunted_house_controller.py"
+from pest import controller, post, get
+from .haunted_house_service import HauntedHouseService
+
+@controller("/haunted-house")
+class HauntedHouseController:
+    service: HauntedHouseService  # 💉 automatically injected
+
+    @get("/")
+    def get_all(self) -> list[HauntedHouse]:
+        return self.service.get_all()
+
+    @get("/{id}")
+    def get(self, id: int) -> HauntedHouse:
+        return self.service.get_by_id(id)
+
+    @post("/")
+    def create(self, haunted_house: NewHauntedHouse) -> HauntedHouse:
+        return self.service.new(haunted_house)
+```
+
+This controller manages all requests made to the `/haunted-house` route and its sub-routes. 
+It collaborates with the `HauntedHouseService` to execute the necessary business logic.
+
+Everything that works with `FastAPI` route handlers also applies to <PestTag /> controllers and 
+method handlers. This includes:
+
+-   Request and response validation using Pydantic models
+-   OpenAPI automatic documentation generation
+-   Path, Query, Body, Cookie, Header parameters
+-   etc.

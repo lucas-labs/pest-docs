@@ -1,0 +1,173 @@
+import { InfoBox, Table, PestTag, NestjsTag } from '@components';
+
+# Modules
+
+A module is a class decorated with `@module` decorator. They are used to organize the application
+grouping related resources that provide a distinct business value together into reusable
+self-contained units.
+
+<InfoBox title="👋 @module has an alias">
+    In the python world, the word "**module**" is often used to refer to a python file. As this 
+    library took inspiration from <NestjsTag/>, we decided to use the word *module* anyway, but
+    we also added some aliases, just in case you prefer to use a different word to refer to the
+    same concept and avoid confusion.
+
+    All the following decorators are equivalent:
+
+    - `@module`
+    - `@domain`
+    - `@dom`
+
+    We took the word *domain* from 
+    [DDD (Domain Driven Design)](https://en.wikipedia.org/wiki/Domain-driven_design). In DDD, a 
+    domain is collection of closely related concepts that have a clear business value.
+</InfoBox>
+
+
+
+All <PestTag /> applications have at least one module, the **root module**. The root module is the
+starting point of the application and it's used by `pest` to build the application dependency graph.
+The dependency graph is a collection of internal metadata that tells `pest` how to build
+and organize the application.
+
+Nevertheless, `pest` aims at mid to large scale APIs, so most applications will tipically
+have more than one module, each of them containing and encapsulating closely related components
+and services that when put together provides a distinct **business value** to the application.
+
+<InfoBox title="👋 Tip: You can actually see the dependency graph!">
+    If you print the string representation of your application instance, you will see how `pest` 
+    created the dependency graph of your application as an actual ascii graph.
+
+    ```python
+    >>> from pest import Pest
+    >>> from .app_module import AppModule
+    >>> app = Pest.create(AppModule)
+    >>> print(app)
+    AppModule
+        │
+        ├─ AuthModule
+        │   │ ○ AuthService
+        │   │ □ AuthController
+        │
+        ├─ HauntedHouseModule
+            │ ○ HauntedHouseService
+            │ □ HauntedHouseController
+    ```
+</InfoBox>
+
+```python filename="haunted_house_module.py"
+from pest import module
+from .haunted_house_controller import HauntedHouseController
+
+@module(
+    controllers=[HauntedHouseController],
+    providers=[HauntedHouseService],
+)
+class HauntedHouseModule:
+    pass
+```
+
+## The `@module` decorator
+
+The `@module` decorator can take the following arguments:
+
+<Table
+    rows={[
+        [
+            { content: 'imports', className: 'font-mono text-orange-400' },
+            {
+                content: <>
+                    A list of imported modules that export the providers which are required in this
+                    module.
+                </>,
+            },
+        ],
+        [
+            { content: 'providers', className: 'font-mono text-orange-400' },
+            {
+                content: <>
+                    The providers that will be contained and can be <i>injected</i> for other 
+                    componentsin the module. Also called <b>dependencies</b> or <b>services</b>.
+                </>,
+            },
+        ],
+        [
+            { content: 'exports', className: 'font-mono text-orange-400' },
+            {
+                content: <>
+                    The providers that will be <i>exported</i> and can be <i>injected</i> for other
+                    modules that import this module. They can be a subset of the providers in 
+                    the <code>providers</code> list. This means that <code>exports</code> define
+                    the <b>public interface</b> of the module.
+                </>,
+            },
+        ],
+        [
+            { content: 'controllers', className: 'font-mono text-orange-400' },
+            { content: 'The controllers that will be contained in the module.' },
+        ]
+    ]}
+/>
+
+
+## Feature modules
+
+A feature module organizes different pieces of the application that are closely related and
+belongs to a specific domain.
+
+When applications grow, it's common to have a lot of different components and services that
+are not closely related to each other. That's when applying the **separation of concerns** principle
+by creating feature modules containing related components and services becomes handy and helps
+to keep the application organized and maintainable over time.
+
+
+Feature modules are just regular modules, but they are usually created in a different directory
+and are imported by the root module or other feature modules using the `imports` argument of the
+`@module` decorator.
+
+Let's say we have some authentication related components and services that we want to group
+together in a feature module:
+
+```python filename="auth_module.py"
+from pest import module
+
+@module(
+    providers=[AuthService, AndOtherServices, RelatedToAuth],
+    exports=[AuthService], # we export the AuthService so other modules importing this
+                           # feature module can use it as a dependency
+)
+class AuthModule:
+    pass
+```
+
+Notice that we are only exporting the `AuthService`. Using the `exports` argument of the
+`@module` decorator we can define the **public interface** of the module, that is, the
+providers that will be available for other modules that import this one.
+
+Now we can import the `AuthModule` in the root module or any other feature module that needs
+to use the `AuthService`:
+
+```python filename="app_module.py"
+from pest import module
+
+@module(
+    imports=[AuthModule, HauntedHouseModule], # we import the feature modules we want to use
+    providers=[AppService],
+    controllers=[AppController],
+)
+class AppModule:
+    pass
+```
+
+This way, `AuthService` is available for the modules that import the `AuthModule` (or by
+all of them, if it's imported by the root module)
+
+This allows us to create **isolated** and self-contained feature modules that can be imported by
+others while, at the same time, keeping the **public interface** of the module clear and explicit.
+
+This opens the door to create **reusable** feature modules that can even be its own package,
+published and developed independently from the rest of the application (even by a different team),
+making our feature modules completely
+[encapsulated](https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)).
+
+

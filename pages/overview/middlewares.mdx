@@ -1,0 +1,284 @@
+import { Callout } from 'nextra/components';
+import { InfoBox, PestTag, FastapiTag, StarletteTag } from '@components';
+
+# Middlewares
+
+A middleware is a function that executes before the request is handled by the controller and before
+the response is sent back to the client.
+
+It acts as a *man-in-the-middle* between the request and the response. It can be used to perform
+a wide variety of tasks, such as:
+
+- Logging
+- Authentication and authorization
+- Error handling
+- Request validation
+- Rate limiting
+- CORS
+- Caching
+- Compression
+- etc.
+
+In short, a middleware works like this:
+
+1. It receives every request before it is handled by the controller.
+2. It performs the required tasks.
+3. It passes the request to the next handler in the chain (it could be another middleware or the
+   final controller).
+4. It receives the response from the next handler in the chain.
+5. It can do something with the response before sending it back to the client.
+6. It sends the response back to the client.
+
+<InfoBox title="🤔 Note: pest is compatible with any ASGI middleware">
+    <PestTag to='/'/> is built on top of <FastapiTag/>, which, in turn, is built on 
+    <StarletteTag>Starlette's</StarletteTag> ASGI implementation. 
+
+    This means that any ASGI middleware out there can be used with `pest`, included those provided
+    by both Starlette and FastAPI.
+
+    You can read a lot more about middlewares on both Starlette's and FastAPI's documentation:
+    - [Starlette's Middlewares](https://www.starlette.io/middleware/)
+    - [FastAPI's Middlewares](https://fastapi.tiangolo.com/advanced/middleware/)
+</InfoBox>
+
+## Creating a Middleware
+
+<PestTag/> support different ways of creating middlewares:
+
+1. As a `function`,
+2. As a `class`,
+3. As a `Callable` instance,
+4. As a pure `ASGI` middleware
+
+### Functional Middleware
+
+At a very basic level, a middleware is just a function that receives a `request` and a `call_next`
+parameter and returns a `response`.
+
+The `request` parameter is the incoming request that will be handled by the controller. The
+`call_next` parameter is an asynchronous function that, when awaited,  will call the next handler 
+in the request processing chain.
+
+Let's see an example:
+
+
+```python
+from pest import Request, Response
+from pest.middleware import CallNext
+
+async def request_identifier(
+    request: Request,
+    call_next: CallNext,
+) -> Response:
+    response = await call_next(request)
+    response.headers['X-Request-Id'] = uuid.uuid4()
+    return response    
+```
+
+The `request_identifier` middleware receives every request and adds a `X-Request-Id` header to it
+with a random UUID before passing it to the next handler.
+
+### `PestMiddleware`
+
+You can also create a middleware by extending the `PestMiddleware` class.
+
+<Callout emoji="👋" type="info">
+    If you come from the node.js world, you might find this approach more familiar.
+</Callout>
+
+```python
+from pest import Request, Response
+from pest.middleware import CallNext, PestMiddleware
+
+class RequestIdentifier(PestMiddleware):
+    async def use(self, request: Request, call_next: CallNext) -> Response:
+        """
+        Middleware that adds a 'X-Request-Id' header to the incoming request.
+        """
+        response = await call_next(request)
+        response.headers['X-Request-Id'] = uuid.uuid4()
+        return response 
+```
+
+### Callable instance Middleware
+
+You can also create a middleware by implementing the `__call__` method in a class.
+
+```python
+from pest import Request, Response
+from pest.middleware import CallNext, PestMiddlewareCallback
+
+class RequestIdentifier(PestMiddlewareCallback):
+    async def __call__(self, request: Request, call_next: CallNext) -> Response:
+        response = await call_next(request)
+        response.headers['X-Request-Id'] = uuid.uuid4()
+        return response 
+```
+
+They are essentially the same as functional middlewares, but they allow you to use class attributes
+and to control its initialization.
+
+Extending the `PestMiddlewareCallback` Protocol is optional.
+
+
+### ASGI Middleware
+
+As we mentioned before, <PestTag/> is built on top of <FastapiTag/>, which at the same time is 
+built on top of <StarletteTag>Starlette</StarletteTag> ASGI implementation.
+
+This means that any ASGI middleware out there can be used with <PestTag noicon/>:
+
+```python
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
+class PureASGIRequestIdentifier:
+    """
+    ASGI middleware that adds a 'X-Request-Id' header to the HTTP response.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope['type'] != 'http':
+            return await self.app(scope, receive, send)
+
+        async def send_wrapper(message: Message) -> None:
+            if message['type'] == 'http.response.start':
+                headers = MutableHeaders(scope=message)
+                headers.append('X-Request-Id', uuid.uuid4())
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+```
+
+## Dependency Injection
+
+Functional, class and callable instance middlewares can also have dependencies injected into them.
+
+
+### Functional Middleware
+
+```python
+from pest import Request, Response
+from pest.middleware import CallNext, inject
+from services.identity import IdentityService
+
+async def request_identifier(
+    request: Request,
+    call_next: CallNext,
+    identity_svc: IdentityService = inject(),  # 💉 injected
+) -> Response:
+    response = await call_next(request)
+    response.headers['X-Request-Id'] = identity_svc.make_request_id()
+    return response
+```
+
+For functional middlewares, the dependencies are injected as function parameters. 
+
+If you are using type checking you will need to import the `inject` function from the <PestTag/>
+module and assign it to the parameter you want to inject.
+
+The `inject` function is just a helper to initialize the parameter so that the function can still
+respect the `Callable[[Request, CallNext], Response]` signature.
+
+### `PestMiddleware`
+
+For `PestMiddleware` middlewares, the dependencies are injected as class attributes or constructor
+parameters. Here you don't need to import the `inject` function.
+
+```python
+from pest import Request, Response
+from pest.middleware import CallNext, PestMiddleware
+
+class RequestIdentifier(PestMiddleware):
+    identity_svc: IdentityService  # 💉 injected
+
+    async def use(self, request: Request, call_next: CallNext) -> Response:
+        response = await call_next(request)
+        response.headers['X-Request-Id'] = self.identity_svc.make_request_id()
+        return response
+```
+
+### Callable instance Middleware
+
+The same applies to callable instance middlewares.
+
+```python
+from pest import Request, Response
+from pest.middleware import CallNext, PestMiddlwareCallback
+
+class RequestIdentifier(PestMiddlwareCallback):
+    identity_svc: IdentityService  # 💉 injected
+
+    async def __call__(self, request: Request, call_next: CallNext) -> Response:
+        response = await call_next(request)
+        response.headers['X-Request-Id'] = self.identity_svc.make_request_id()
+        return response 
+```
+
+### ASGI Middleware
+
+Dependency injection for ASGI middlewares is not (yet) supported.
+
+## Registering a Middleware
+
+Once you have created your middleware, you need to register it.
+
+You can do that when you create your application instance, by passing the middleware to the
+`middleware` argument of the `Pest.create` method.
+
+
+```python
+from pest import Pest
+
+app = Pest.create(
+    AppModule,
+    middleware=[request_identifier],
+)
+```
+
+The `middleware` argument takes a list of middlewares. You can register as many middlewares as you
+want. It can be a mix of functional, class, callable instance and ASGI middlewares.
+
+For `Callable` instances and `PestMiddlware`, you have two options: you can either pass the class 
+itself or an instance of the class provided by you.
+
+If you provide an instance, you are responsible for initializing it. Meaning that you are the
+responsable for injecting the dependencies into the instance.
+
+For ASGI middlewares, you need to use the `Middleware` class provided by starlette.
+
+```python
+from pest import Pest
+from starlette.middleware import Middleware
+
+app = Pest.create(
+    AppModule,
+    middleware=[
+        Middleware(PureASGIRequestIdentifier),
+    ],
+)
+```
+
+You can read more about the `Middleware` class in the 
+<StarletteTag to='middleware'>Starlette's documentation</StarletteTag>
+
+
+### <FastapiTag iconClassName="h-[24px]"/> is still there!
+
+If you are familiar with FastAPI, you might be wondering where is the `app.middleware` decorator.
+Well, it's still there as any other FastAPI and Starlette functionality. So, registering a
+middleware this way is still possible:
+
+```python
+@app.middleware('http')
+async def request_identifier(
+    request: Request,
+    call_next: CallNext,
+    identity_svc: IdentityService,  # 💉 injection is supported here as well!
+) -> Response:
+    response = await call_next(request)
+    response.headers['X-Request-Id'] = identity_svc.make_request_id()
+    return response
+```

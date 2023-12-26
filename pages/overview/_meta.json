@@ -1,0 +1,8 @@
+{
+    "first-steps": "First steps",
+    "controllers": "Controllers",
+    "modules": "Modules",
+    "providers": "Providers",
+    "middlewares": "Middlewares",
+    "exceptions": "Exception handling"
+}

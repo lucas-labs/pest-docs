@@ -1,0 +1,59 @@
+import { PestTag } from '@components';
+
+
+# The `HauntedHousesModule` Feature Module
+
+We will start by creating a new feature module called `HauntedHousesModule`. This module
+will contain all the haunted houses related components, services, and other artifacts.
+
+This will be a short chapter in which we will be creating the module and adding it to the 
+`AppModule`.
+
+Later in this course, we will come back to `HauntedHousesModule` as we add more components to it.
+
+
+## Creating the `HauntedHousesModule`
+
+Let's start by creating the file `app/haunted_houses/haunted_houses_module.py`
+
+```bash
+$ touch app/haunted_houses/haunted_houses_module.py
+```
+
+A [pest feature module](/overview/modules.mdx#feature-modules) is a python class decorated with the
+`@module` decorator.
+
+```python filename="app/haunted_houses/haunted_houses_module.py"
+from pest import module
+
+@module()
+class HauntedHousesModule:
+    pass
+```
+
+For now, the module is empty and doesn't do much.
+
+## Registering the `HauntedHousesModule` in the `AppModule`
+
+Now that we have created the `HauntedHousesModule`, we need to register it in the `AppModule` so
+that <PestTag/> can load it.
+
+```python filename="app/app_module.py" {3,7} /HauntedHousesModule/
+from pest.decorators.module import module
+
+from .haunted_houses.haunted_houses_module import HauntedHousesModule
+from .hello.module import HelloModule
+
+@module(
+    imports=[HelloModule, HauntedHousesModule],
+)
+class AppModule:
+    pass
+```
+
+To register the `HauntedHousesModule` in the `AppModule`, we need to import it and add it to the
+`imports` list of the `@module` decorator.
+
+Now, `HountedHousesModule` is registered and will be loaded by <PestTag/> when the application
+starts.
+

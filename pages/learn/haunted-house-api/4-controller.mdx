@@ -1,0 +1,305 @@
+import { PestTag, FastapiTag } from '@components';
+
+
+# The Controller layer
+
+In this section, we will delve into the creation of the HauntedHousesController class. The
+controller is a crucial component in any web API, responsible for handling incoming HTTP requests
+and returning appropriate responses. The controller will define the routes and actions for managing
+haunted houses.
+
+## HauntedHousesController class
+
+[When we first introduced the Hounted House API](../haunted-house-api), we mentioned that our API
+would respond to HTTP requests for managing haunted houses CRUD operations (create, read, update,
+delete). 
+
+The place where we define these routes and actions is in the HauntedHousesController class.
+
+A Controller is a class decorated with the `@controller` decorator.
+
+The decorator takes, at least, one argument: the route prefix. This is the prefix that will be
+prepended to all the routes defined in the controller.
+
+Each route (also known as request handler) is defined by a method decorated with one of the HTTP
+method decorators: `@get`, `@post`, `@put`, `@delete` provided by <PestTag/>.
+
+Let's create the `HauntedHousesController` class in the `haunted_houses_controller.py` file and 
+implement our first request handler: a `get_houses` method that will receive and handle 
+`GET /haunted-houses` requests.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py"
+from pest import controller, get, post, put, delete
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHouse
+
+@controller("/haunted-houses")
+class HauntedHousesController:
+    """Haunted-houses routes"""
+
+    service: HauntedHousesService  # 💉 injected
+    
+    @get("/")
+    def get_houses(self) -> list[HauntedHouse]:
+        """Get all haunted houses"""
+        return self.service.get_houses()
+```
+
+A lot is going on in this small code snippet, so let's break it down.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py"
+@controller("/haunted-houses")
+class HauntedHousesController:
+```
+
+By decorating the `HauntedHousesController` class with the `@controller` decorator, we are telling
+<PestTag/> that this class is, in fact, a controller and that all the routes defined in it will have
+the prefix `/haunted-houses`.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py"
+    service: HauntedHousesService  # 💉 injected
+```
+
+The `HauntedHousesController` class has a `service` attribute that is of type 
+`HauntedHousesService`. Notice that we are not instantiating the service class, but rather declaring
+it as a class attribute. When <PestTag/> instantiates the controller, it will also instantiate the
+service as a required dependency and inject it into the controller.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py"
+    @get("/")
+    def get_houses(self) -> list[HauntedHouse]:
+        """Get all haunted houses"""
+        return self.service.get_houses()
+```
+
+- The `get_houses` method is decorated with the `@get("/")` decorator, which tells <PestTag/> that
+this method will handle `GET` requests to root `/haunted-houses` route.
+
+- The docstring of the method will be used as the description of the route in the OpenAPI schema.
+
+- The method returns a list of `HauntedHouse` objects; but since `HauntedHouse` is a pydantic model,
+  and <PestTag/> is built on top of <FastapiTag/>, the response will be automatically serialized to 
+  JSON.
+
+- We don't usually do much inside the controller methods. Instead, we delegate the business logic to
+  a service class. In this case, we are calling the `get_houses` method of the 
+  `HauntedHousesService` class and returning the result. This is not mandatory, but it is a good
+  practice to keep the controller methods as simple as possible. 
+
+  Ideally, A controller should have transport-layer related logic only, like parsing the request,
+  validating the request, data transformation, etc. The business logic should be delegated to a 
+  service class. <PestTag/> and <FastapiTag/> automatically take care of a lot of theses things for
+  us before even reaching our handler, and after the handler returns.
+
+### Let's test it!
+
+Before implementing the rest of the controller, let's test what we have so far.
+
+In order to do so, we need to go back to the `HauntedHousesModule` class again and add the
+controller class to the `controllers` list in order to register it inside the module so that
+<PestTag/> can find it.
+
+```python filename="app/haunted_houses/haunted_houses_module.py" {2,7}
+from pest import module
+from .haunted_houses_controller import HauntedHousesController
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHousesRepository
+
+@module(
+    controllers=[HauntedHousesController],
+    providers=[HauntedHousesService, HauntedHousesRepository],
+)
+class HauntedHousesModule:
+    pass
+```
+
+We are ready to try our route. Let's start the server and make a request to the `/haunted-houses`
+route.
+
+```bash
+$ uvicorn app.main:app --reload
+```
+
+You should see a JSON list of haunted houses. Nice!
+
+
+## Define rest of the request handlers (or routes)
+
+Now that we know how to define a route, let's define the rest of the routes for managing all the
+CRUD operations for haunted houses.
+
+### Get a haunted house by id
+
+```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+from pest import controller, get, post, put, delete
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHouse
+
+@controller("/haunted-houses")
+class HauntedHousesController:
+    """Haunted-houses routes"""
+
+    service: HauntedHousesService  # 💉 injected
+    
+    ...
+
+    @get("/{house_id}")
+    def get_house_by_id(self, house_id: int) -> HauntedHouse:
+        """Get a haunted house by ID"""
+        return self.service.get_house_by_id(house_id)
+```
+
+Nothing too different from the previous route. Except that this time, we are defining a route with
+a path parameter: `/{house_id}`. The path parameter will be passed as an argument to the method.
+
+This means that the `get_house_by_id` method will receive a `house_id` argument of type `int` and 
+value 1 when the route `/haunted-houses/1` is requested.
+
+By using our service instance, we can get the haunted house by id and return it.
+
+### Create a haunted house
+
+When we want to create stuff, we usually use the `POST` HTTP method. Let's create a route for
+creating haunted houses.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+from pest import controller, get, post, put, delete
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHouse
+
+@controller("/haunted-houses")
+class HauntedHousesController:
+    """Haunted-houses routes"""
+
+    service: HauntedHousesService  # 💉 injected
+    
+    ...
+
+    @post("/")
+    def create_house(self, house: HauntedHouse) -> HauntedHouse:
+        """Create a new haunted house"""
+        return self.service.create_house(house)
+```
+
+In order to handle `POST` requests, we use the `@post` decorator. The `create_house`. Our method
+receives a `house` argument of type `HauntedHouse` and returns a `HauntedHouse` object.
+
+The `HauntedHouse` object will be deserialized from the request body. Thanks to `Pydantic` and
+<FastapiTag/>, it will be automatically validated and converted to a `HauntedHouse` object.
+
+Then we delegate the creation of the haunted house to the service we created earlier and return the
+result.
+
+### Update a haunted house
+
+We use the `PUT` HTTP methods when we want to update stuff. Let's create a route for updating
+haunted houses.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+from pest import controller, get, post, put, delete
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHouse
+
+@controller("/haunted-houses")
+class HauntedHousesController:
+    """Haunted-houses routes"""
+
+    service: HauntedHousesService  # 💉 injected
+    
+    ...
+
+    @put("/{house_id}")
+    def update_house(self, house_id: int, updated_house: HauntedHouse) -> HauntedHouse:
+        """Update an existing haunted house"""
+        return self.service.update_house(house_id, updated_house)
+```
+
+In this case we expect two arguments: `house_id` and `updated_house`. The `house_id` will be passed
+as a path parameter, and the `updated_house` will be deserialized from the request body.
+
+Again, we delegate the actual business logic to the service and return the result, letting 
+<PestTag/> and <FastapiTag/> take care of the validation, serialization, etc.
+
+### Delete a haunted house
+
+Finally, we need a route for deleting haunted houses. We use the `DELETE` HTTP method for that.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+from pest import controller, get, post, put, delete
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHouse
+
+@controller("/haunted-houses")
+class HauntedHousesController:
+    """Haunted-houses routes"""
+
+    service: HauntedHousesService  # 💉 injected
+    
+    ...
+
+    @delete("/{house_id}")
+    def delete_house(self, house_id: int) -> None:
+        """Delete a haunted house by ID"""
+        self.service.delete_house(house_id)
+```
+
+There we go! We have all the routes we need to manage haunted houses.
+
+### The entire controller
+
+At this point, our controller should look like this.
+
+```python filename="app/haunted_houses/haunted_houses_controller.py"
+from pest import controller, get, post, put, delete
+from .haunted_houses_service import HauntedHousesService
+from .haunted_houses_repository import HauntedHouse
+
+@controller("/haunted-houses")
+class HauntedHousesController:
+    """Haunted-houses routes"""
+    service: HauntedHousesService  # 💉 injected
+
+    @get("/")
+    def get_houses(self) -> list[HauntedHouse]:
+        """Get all haunted houses"""
+        return self.service.get_houses()
+
+    @get("/{house_id}")
+    def get_house_by_id(self, house_id: int) -> HauntedHouse:
+        """Get a haunted house by ID"""
+        return self.service.get_house_by_id(house_id)
+
+    @post("/")
+    def create_house(self, house: HauntedHouse) -> HauntedHouse:
+        """Create a new haunted house"""
+        return self.service.create_house(house)
+
+    @put("/{house_id}")
+    def update_house(self, house_id: int, updated_house: HauntedHouse) -> HauntedHouse:
+        """Update an existing haunted house"""
+        return self.service.update_house(house_id, updated_house)
+
+    @delete("/{house_id}")
+    def delete_house(self, house_id: int) -> None:
+        """Delete a haunted house by ID"""
+        self.service.delete_house(house_id)
+```
+
+All the CRUD operations for haunted houses are now implemented. Let's try them out!
+
+In order to test the routes with methods other than `GET`, we need a tool that allows us to make
+requests with different HTTP methods. We can use `curl` for that, but if you want a more user
+friendly tool, I recommend [Insomnia](https://insomnia.rest/) or the 
+[Thunder Client](https://www.thunderclient.io/) extension for VSCode. There are many other tools
+out there, so feel free to use whatever you like.
+
+
+## Conclusion
+
+In this section, we learned how to create a controller class and define routes for handling HTTP
+requests. We also learned how to inject dependencies into the controller class and why it is a good
+practice to delegate the business logic to a service class.
+
+
+
+

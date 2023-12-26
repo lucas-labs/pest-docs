@@ -1,0 +1,214 @@
+import { InfoBox, Table, PestTag } from '@components';
+import Link from 'next/link'
+
+# Providers
+
+Providers are classes or objects that can be injected into other components.
+
+They're also referred to as **dependencies** or **services**. They could be anything, from simple
+helper classes to complex services responsible for executing the main business logic of the
+application, performing database queries, making HTTP requests. A service could also be a 
+database connection, a logger, a cache, a mailer, etc.
+
+Providers are defined in the `providers` list of the `@module` decorator and can be injected
+into other components, such as controllers, other providers, middlewares, etc.
+
+For example, let's say we have a `HauntedHouseService` that is responsible for handling all the
+business logic and database operations related to `HauntedHouse` entities.
+
+It could look something like this:
+
+
+```python filename="haunted_house_service.py"
+from pest import module, inject
+from sqlmodel import Session, select
+from .models.haunted_house import HauntedHouse
+
+class HauntedHouseService:
+    db: Session  # 💉 automatically injected
+
+    def get_all(self) -> list[HauntedHouse]:
+        """Returns all the haunted houses"""
+
+        return session.exec(select(HauntedHouse)).all()
+
+    def get_by_id(self, id: int) -> HauntedHouse:
+        """Returns a haunted house by its id"""
+
+        return session.exec(select(HauntedHouse).where(HauntedHouse.id == id)).first()
+
+    def new(self, haunted_house: NewHauntedHouse) -> HauntedHouse:
+        """Creates a new haunted house"""
+
+        new_haunted_house = HauntedHouse(**haunted_house.dict())
+        session.add(new_haunted_house)
+        session.commit()
+        session.refresh(new_haunted_house)
+        return new_haunted_house
+```
+
+When we define a provider and make it available in the module, we can then inject it into other
+components, such as controllers, other providers, middlewares, etc.
+
+If we remember from the <Link href="./controllers">Controllers</Link> section, we had a
+`HauntedHouseController` that was using a `HauntedHouseService` to handle incoming requests.
+
+
+```python filename="haunted_house_controller.py"
+@controller("/haunted-house")
+class HauntedHouseController:
+    service: HauntedHouseService  # 💉 automatically injected
+
+    @get("/")
+    def get_all(self) -> list[HauntedHouse]:
+        return self.service.get_all()
+
+    ... other handlers ...
+```
+
+The `HauntedHouseController` handles the incoming requests and delegates the actual business logic
+to the `HauntedHouseService` who knows how to talk to the database and perform the required
+operations. 
+
+The `HauntedHouseService` is injected into the controller by <PestTag/> when the controller is created.
+This is done automatically by reading the type annotations of the controller's constructor and
+class attributes (as in the case above).
+
+If we inspect the `HauntedHouseService` class, we can see that it has a `db` session attribute.
+You can have services that depend on other providers and so on. `pest` will automatically inject
+all the required dependencies.
+
+## Declaring Providers
+
+Providers are declared in the `providers` list of the `@module` decorator.
+
+```python filename="haunted_house_module.py"
+from pest import module, inject
+
+from .controllers.haunted_house_controller import HauntedHouseController
+from .services.haunted_house_service import HauntedHouseService
+
+@module(
+    controllers=[HauntedHouseController],
+    providers=[HauntedHouseService], # by declaring the provider here, 
+                                     # we make it available to all components in
+                                     # the module
+)
+class HauntedHouseModule:
+    pass
+```
+
+
+
+## Dependency Injection
+
+Let's talk a bit more about dependency injection. 
+
+<InfoBox title="🤔 Note: nest uses rodi as its container">
+    Under the hood, <PestTag to={'/'}/> uses [`rodi`](https://github.com/Neoteroi/rodi); a dependency injection 
+    library for Python.
+</InfoBox>
+
+Nest was built with dependency injection in mind. It's a powerful design pattern that allows us to
+write loosely coupled code that is easier to test and maintain.
+
+All dependency injection systems contain two main parts:
+
+- A **provider registry**, also called a *container*, that holds all the providers and their dependencies.
+
+- A **consumer**, or *dependent*, which gets injected with the required dependencies.
+
+There are different approachs in how to inject dependencies into consumers (in other words, how the
+consumer tells the container what dependencies it needs and how the container provides them).
+
+- *Constructor* injection
+
+- *Property* injection
+
+<PestTag/> supports both of them thanks to [`rodi`](https://github.com/Neoteroi/rodi). 
+Let's see how that works.
+
+### Constructor Injection
+
+Constructor injection means that the dependencies are injected into the consumer's constructor.
+
+```python
+class HauntedHouseController:
+    def __init__(self, service: HauntedHouseService): 
+        self.service = service # 💉 injected
+
+    ...
+```
+
+In the example above, the `HauntedHouseController` class has a constructor that takes a 
+`HauntedHouseService` as an argument. This means that the controller depends on the service to
+work. By declaring the dependency in the constructor, the controller is telling `pest` that it
+needs a `HauntedHouseService` to work.
+
+When the controller is created, <PestTag/> will automatically inject the required dependencies into
+the constructor by its type annotations.
+
+### Property Injection
+
+Property injection means that the dependencies are injected into the consumer's properties or
+attributes.
+
+```python
+class HauntedHouseController:
+    service: HauntedHouseService  # 💉 injected
+
+    ...
+```
+
+In the example above, the `HauntedHouseController` class has a `service` attribute of type
+`HauntedHouseService`. This means that the controller depends on the service to work. <PestTag/>
+will automatically inject the required dependencies into the controller's attributes by its type
+annotations.
+
+## Scopes
+
+Scopes defines the lifetime of a provider: how long an instance of a provider will live in the 
+container.
+
+`pest` supports the following scopes:
+
+<Table
+    rows={[
+        [
+            { content: 'Singleton', className: 'font-mono text-orange-400' },
+            {
+                content: <>
+                    A singleton provider will be created only once and the same instance will be
+                    injected into all the consumers that depend on it. It doesn't matter how many
+                    times the provider is injected, it will always be the same instance.
+                </>
+            },
+        ],
+        [
+            { content: 'Transient', className: 'font-mono text-orange-400' },
+            {
+                content: <>
+                    A new instance of a transient provider will be created every time it's injected
+                    into a consumer. This means that every consumer that depends on a transient
+                    provider will receive a different instance of the provider.
+                </>
+            },            
+        ],
+        [
+            { content: 'Scoped/Request', className: 'font-mono text-orange-400' },
+            {
+                content: <>
+                    A scoped provider will be created once per request. This means that every
+                    consumer that depends on a scoped provider will receive the same instance of
+                    the provider for the duration of the request. Once the request is finished, the
+                    provider will be disposed.
+                </>
+            },            
+        ]
+    ]}
+/>
+
+By deafult, all providers declared in the `providers` list of the `@module` decorator are
+*Transient* instances.
+
+You can read more about scopes [here](/fundamentals/scopes)

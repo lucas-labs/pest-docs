@@ -1,0 +1,13 @@
+@use '../../public/color' as c;
+
+.mark {
+    background-color: hsl(var(--mark-hue) 100% 94% / var(--tw-bg-opacity));
+    border-radius: 0.25rem;
+    padding: 0.1rem 0.25rem;
+}
+
+.mark[color-scheme='dark'] {
+    background-color: hsl(var(--mark-hue) 99% 43% / 0.15);
+    color: var(--mark-color, rgba(c.$secondary, 1));
+    font-weight: 600;
+}

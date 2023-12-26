@@ -1,0 +1,13 @@
+.version-tag {
+    background-color: hsl(var(--nextra-primary-hue) 100% 94% / var(--tw-bg-opacity));
+    font-family: monospace;
+    font-weight: inherit;
+    border-radius: 8px;
+    padding: 2px 6px;
+}
+
+.version-tag[color-scheme='dark'] {
+    background-color: hsl(var(--nextra-primary-hue) 100% 94%/0.7);
+    color: #000;
+    font-weight: bold;
+}

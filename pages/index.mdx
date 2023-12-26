@@ -1,0 +1,87 @@
+import { Mark } from './../components/mark/mark';
+import { Callout } from 'nextra/components';
+import { PestTag, FastapiTag, NestjsTag, GithubTag, StarletteTag } from '@components';
+
+# Introduction
+
+<Callout emoji="⚠️" type="warning">
+    Pest is still in early development, and it's not ready for production yet. If you want to
+    help, please, go to <GithubTag>github</GithubTag> and say hello!
+</Callout>
+
+**<PestTag/>** is a [python](https://www.python.org/) web application framework  designed for 
+constructing scalable APIs, drawing inspiration from <NestjsTag/>.
+
+It is constructed on top of <FastapiTag/> with the goal of offering a straightforward yet robust
+interface and framework for developing extensive APIs that can be distributed across multiple files 
+and self-contained _modules_.
+
+This framework harnesses the capabilities of [FastAPI](https://fastapi.tiangolo.com/),
+[Starlette](https://www.starlette.io/) and [rodi](https://github.com/Neoteroi/rodi) to deliver 
+modularized, scalable, and easily creatable APIs, taking inspiration directly from 
+[nest.js](https://nestjs.com/).
+
+```python
+@controller("/haunted-house")
+class HauntedHouseController:
+    service: HauntedHouseService  # 💉 automatically injected
+
+    @get("/")
+    def get_all(self) -> list[HauntedHouse]:
+        return self.service.get_all()
+
+    @get("/{id}")
+    def get(self, id: int) -> HauntedHouse:
+        return self.service.get_by_id(id)
+
+    @post("/")
+    def create(self, haunted_house: NewHauntedHouse) -> HauntedHouse:
+        return self.service.new(haunted_house)
+```
+
+<Callout emoji="👋" type="info">
+    If you come from the node.js world, you can think of **<PestTag/>** as
+    <NestjsTag/> meets python.
+</Callout>
+
+## Features
+
+-   <Mark>**openapi**</Mark> - `pest` utilizes [FastAPI](https://fastapi.tiangolo.com/) under the 
+    hood, offering all the features provided by it, including its impressive automatic documentation 
+    with [openapi](https://swagger.io/specification/) and [redoc](https://github.com/Redocly/redoc)
+    UIs.
+
+-   <Mark>**class-based**</Mark> - `pest` employs object-oriented programming (OOP) as an 
+    organizational approach for routes, middlewares, and other API components.
+
+-   <Mark>**modularity**</Mark> - `pest` allows you to create `modules`, which are a way to organize
+    groups of allowing the organization of interrelated services, routes, and middlewares that 
+    provide distinct business value to your API.
+
+-   <Mark>**scalability**</Mark> - `pest` is designed with scalability in mind, targeting mid to 
+    large APIs distributed across multiple files organized in different self-contained modules.
+
+-   <Mark>**dependency injection**</Mark> - `pest` uses dependency injection (thanks to the awesome
+    [`rodi`](https://github.com/Neoteroi/rodi/tree/main/rodi)) to provide a way to inject 
+    dependencies into your services, controllers, routes, middlewares, etc.
+
+-   <Mark>**declarative**</Mark> - `pest` uses decorators to declare modules, controllers, routes,
+    middlewares, etc.
+
+-   <Mark>**easy to use**</Mark> - `pest` is easy to use, and it's easy to get started with it.
+
+And, obviously, everything that <FastapiTag/> and <StarletteTag/> provide.
+
+Think of **<PestTag noicon/>** as an effortless way to organize your API, , grouping related 
+business logic together in self-contained modules with scalability in mind, while retaining the 
+flexibility that <FastapiTag nolink/> provides.
+
+## Philosophy
+
+**<PestTag/>** bases its philosophy on the following principles:
+
+-   Model-View-Controller (MVC) architecture
+-   Domain Driven Design (DDD)
+-   Separation of Concerns (SoC)
+-   Dependency Injection (DI)
+-   [SOLID](https://en.wikipedia.org/wiki/SOLID) principles

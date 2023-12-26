@@ -1,0 +1,59 @@
+{
+    "files.exclude": {
+        // ⚙️ config
+        // "**/**/tsconfig*": true,
+        ".npmrc": true,
+        "theme.config.tsx": true,
+        "next.config.js": true,
+        "docs.code-workspace": true,
+        "tailwind.config.js": true,
+        "postcss.config.js": true,
+
+        // 🧼 linters & styles
+        "**/**/.prettierrc": true,
+        "**/**/.editorconfig": true,
+        "**/**/.eslintrc*": true,
+
+        // 📝 docs
+        "README.md": true,
+        "LICENSE": true,
+
+        // 📦 package managers
+        "node_modules": true,
+        ".pnp.*": true,
+        ".yarn": true,
+        ".yarnrc.yml": true,
+
+        // 🗑️
+        ".github": true,
+        ".next": true,
+        "out": true,
+        "next-env.d.ts": true,
+        "yarn.lock": true,
+        ".prettierignore": true,
+        // ".gitignore": true,
+        ".git": true,
+        "dist": true,
+        ".vscode": true
+    },
+    "search.exclude": {
+        "**/.yarn": true,
+        "**/.pnp.*": true
+    },
+    "[markdown]": {
+        "editor.rulers": [100]
+    },
+    "[mdx]": {
+        "editor.quickSuggestions": {
+            "other": "off"
+        },
+        "tailwindCSS.experimental.classRegex": [
+            ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^\"'`]*)(?:'|\"|`)"]
+        ]
+    },
+    "editor.rulers": [100],
+    "typescript.tsdk": ".yarn/sdks/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "prettier.prettierPath": ".yarn/sdks/prettier/index.cjs",
+    "eslint.nodePath": ".yarn/sdks"
+}

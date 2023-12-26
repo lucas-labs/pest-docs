@@ -1,0 +1,44 @@
+import { FileTree } from 'nextra/components';
+import { PestTag } from '@components';
+
+
+# Introducing the Haunted Houses API
+
+In this chapter, we'll embark on the journey of building an API for managing haunted houses 
+utilizing the <PestTag/> framework.
+
+The Haunted Houses API will offer a set of endpoints to perform common CRUD (Create, Read, Update,
+Delete) operations on haunted houses.
+
+For that purpose, we will be using a Feature Module called `HauntedHousesModule` which will contain
+all the necessary components to handle the haunted houses functionality in a modular and organized 
+manner.
+
+The `HauntedHousesModule` will act as a container for the components that make up the Haunted Houses 
+feature, including a controller and a service. This modular approach ensures a clean separation of
+concerns and makes the codebase more maintainable.
+
+In the upcoming sections, we'll explore how each component within the `HauntedHousesModule` 
+contributes to the functionality of our Haunted Houses API, starting with creating the module itself
+and then moving on to the service and controller layers.
+
+
+## Project Structure
+
+After completing the entire series, the project structure should look something like this:
+
+<FileTree>
+    <FileTree.Folder name="app" defaultOpen>
+        <FileTree.Folder name="hello" defaultOpen>
+            <FileTree.File name="greeter_service.py" />
+            <FileTree.File name="hello_controller.py" />
+            <FileTree.File name="module.py" />
+        </FileTree.Folder>
+        <FileTree.Folder name="haunted_houses" defaultOpen>
+            <FileTree.File name="haunted_houses_repository.py" />
+            <FileTree.File name="haunted_houses_controller.py" />
+            <FileTree.File name="haunted_houses_service.py" />
+            <FileTree.File name="haunted_houses_module.py" />
+        </FileTree.Folder>
+    </FileTree.Folder>
+</FileTree>

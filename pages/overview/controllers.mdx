@@ -1,0 +1,68 @@
+import { PestTag } from '@components';
+
+# Controllers
+
+Controllers have the responsability of receiving requests and sending appropriate responses.
+
+Each controller handles incoming requests for a specific route path and its subpaths by defining
+different request handlers.
+
+```python
+from pest.decorators import controller, post, get
+
+@controller("/rat")
+class RatController:
+    @get("/{id}")
+    def get_one(self, id: int):
+        return {
+            "id": id,
+            "name": "Rattata"
+        }
+```
+
+The `@controller` decorator takes, at a minimum, a path as an argument. This path will be used as
+the base path for all the request handlers defined in the controller.
+
+The `@get` http request method decorator tells <PestTag/> that the decorated method should be used to
+handle `GET` requests to the path defined in the decorator's argument. In this case, the `get_one`
+method will handle `GET` requests to `/rat/{id}` and return a JSON response with the `id` and `name`
+of the requested object.
+
+Now, we tipically would have more than one handler for a given path. Appart from getting a single
+`rat`, we might want our API to expose a way to create new `rats`. We can do that by adding a new
+method to the controller and decorating it with the `@post` decorator.
+
+```python {13,14,15,16,17,18,19,20}
+from pest.decorators import controller, post, get
+from .dtos import RatCreateDTO
+
+@controller("/rat")
+class RatController:
+    @get("/{id}")
+    def get_one(self, id: int):
+        return {
+            "id": id,
+            "name": "Rattata"
+        }
+
+    @post("/")
+    def create(self, new_rat: RatCreateDTO):
+        # create a new rat
+
+        return {
+            "id": 1,
+            "name": "Speedy Gonzales"
+        }
+```
+
+Our `create` method now gives the controller the ability to handle `POST` requests to `/rat/`.
+
+The available http method decorators are:
+
+-   `@get`
+-   `@post`
+-   `@put`
+-   `@patch`
+-   `@delete`
+
+Each of them handles will receive requests with the corresponding http method to the provided path.

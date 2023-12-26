@@ -1,0 +1,6 @@
+{
+    "1-repository": "Repository",
+    "2-feature-module": "Feature Module",
+    "3-service": "Service Layer",
+    "4-controller": "Controller"
+}
