@@ -1,4 +1,5 @@
 import { InfoBox } from '@components';
+import { FileTree } from 'nextra/components';
 
 # Getting Started with `pest`
 
@@ -70,6 +71,19 @@ app
  ├─ app_module.py
  └─ main.py
 ```
+
+<FileTree>
+    <FileTree.Folder name="app" defaultOpen>
+        <FileTree.Folder name="hello" defaultOpen>
+            <FileTree.File name="greeter_service.py" />
+            <FileTree.File name="hello_controller.py" />
+            <FileTree.File name="module.py" />
+        </FileTree.Folder>
+    </FileTree.Folder>
+    <FileTree.File name="app_module.py" />
+    <FileTree.File name="main.py" />
+</FileTree>
+
 
 ### app_module.py
 

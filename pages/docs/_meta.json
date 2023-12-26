@@ -1,0 +1,15 @@
+{
+    "*": {
+        "theme": {
+            "timestamp": true
+        }
+    },
+    "intro": {
+        "title": "Introduction soroongo",
+        "theme": {
+            "timestamp": true
+        }
+    },
+    "overview": "Overview",
+    "learn": "Learn"    
+}

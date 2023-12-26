@@ -8,7 +8,7 @@ const config: DocsThemeConfig = {
     project: {},
     docsRepositoryBase: 'https://lucaslabs.tech',
     footer: {
-        text: 'ZGPT',
+        
     },
     darkMode: true,
     primaryHue: 20,

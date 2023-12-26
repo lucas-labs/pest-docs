@@ -6,6 +6,7 @@ module.exports = async () => {
         themeConfig: './theme.config.tsx',
         staticImage: true,
         defaultShowCopyCode: true,
+        latex: true,
     });
 
     return withNextra({

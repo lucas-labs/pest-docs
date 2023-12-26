@@ -3,8 +3,8 @@
         // ⚙️ config
         // "**/**/tsconfig*": true,
         ".npmrc": true,
-        "theme.config.tsx": true,
-        "next.config.js": true,
+        // "theme.config.tsx": true,
+        // "next.config.js": true,
         "docs.code-workspace": true,
         "tailwind.config.js": true,
         "postcss.config.js": true,

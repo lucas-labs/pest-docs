@@ -1618,6 +1618,7 @@ __metadata:
     "@next/eslint-plugin-next": "npm:^14.0.3"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/eslint": "npm:^8"
+    "@types/katex": "npm:^0"
     "@types/node": "npm:20.9.1"
     "@types/react": "npm:^18.2.37"
     "@typescript-eslint/eslint-plugin": "npm:^6.12.0"
@@ -1626,6 +1627,7 @@ __metadata:
     clsx: "npm:^2.0.0"
     eslint: "npm:^8.54.0"
     eslint-config-next: "npm:^14.0.3"
+    katex: "npm:^0.16.9"
     next: "npm:^14.0.3"
     nextra: "npm:^2.13.2"
     nextra-theme-docs: "npm:^2.13.2"
@@ -2241,6 +2243,13 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: 4e5aed58cabb2bbf6f725da13421aa50a49abb6bc17bfab6c31b8774b073fa7b50d557c61f961a09a85f6056151190f8ac95f13f5b48136ba5841f7d4484ec56
+  languageName: node
+  linkType: hard
+
+"@types/katex@npm:^0":
+  version: 0.16.7
+  resolution: "@types/katex@npm:0.16.7"
+  checksum: 4fd15d93553be97c02c064e16be18d7ccbabf66ec72a9dc7fd5bfa47f0c7581da2f942f693c7cb59499de4c843c2189796e49c9647d336cbd52b777b6722a95a
   languageName: node
   linkType: hard
 
