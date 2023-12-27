@@ -9,7 +9,7 @@ const Footer =  () => (
 const config: DocsThemeConfig = {
     logo: <LogoComponent />,
     project: {
-        link: 'https://github.com/lucas-labs/pest-docs'
+        link: 'https://github.com/lucas-labs/pest'
     },
     docsRepositoryBase: 'https://github.com/lucas-labs/pest-docs/tree/master/',
     footer: {
