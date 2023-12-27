@@ -158,9 +158,6 @@ class HauntedHousesController:
 Similar to the previous route, the only difference this time is the addition of a path parameter:
 `/{house_id}`. This parameter will be passed as an argument to the `get_house_by_id` method.
 
-This means that the `get_house_by_id` method will receive a `house_id` argument of type `int` and 
-value 1 when the route `/haunted-houses/1` is requested.
-
 For instance, when the route `/haunted-houses/1` is requested, the `get_house_by_id` method will 
 receive a` house_id` argument with the value `1`. Using our service instance, we retrieve the haunted house by
 its ID and return it.
