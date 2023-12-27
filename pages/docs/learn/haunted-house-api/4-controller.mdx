@@ -1,32 +1,31 @@
 import { PestTag, FastapiTag } from '@components';
 
 
-# The Controller layer
+# The Controller Layer
 
-In this section, we will delve into the creation of the HauntedHousesController class. The
-controller is a crucial component in any web API, responsible for handling incoming HTTP requests
-and returning appropriate responses. The controller will define the routes and actions for managing
-haunted houses.
+This section explores the creation of the `HauntedHousesController` class, a pivotal component in
+any `pest` API. The controller is responsible for handling incoming HTTP requests and generating 
+appropriate responses. It defines the routes and actions necessary for managing haunted houses.
+
 
 ## HauntedHousesController class
 
-[When we first introduced the Hounted House API](../haunted-house-api), we mentioned that our API
+When we first introduced the [Hounted House API](../haunted-house-api), we mentioned that our API
 would respond to HTTP requests for managing haunted houses CRUD operations (create, read, update,
 delete). 
 
-The place where we define these routes and actions is in the HauntedHousesController class.
+The `HauntedHousesController` class is where we define these routes and actions.
 
 A Controller is a class decorated with the `@controller` decorator.
 
-The decorator takes, at least, one argument: the route prefix. This is the prefix that will be
-prepended to all the routes defined in the controller.
+The decorator takes at least one argument: the route prefix. This prefix will be prepended to all
+the routes defined in the controller.
 
-Each route (also known as request handler) is defined by a method decorated with one of the HTTP
+Each route is defined by a method, also known as a request handler, decorated with one of the HTTP
 method decorators: `@get`, `@post`, `@put`, `@delete` provided by <PestTag/>.
 
-Let's create the `HauntedHousesController` class in the `haunted_houses_controller.py` file and 
-implement our first request handler: a `get_houses` method that will receive and handle 
-`GET /haunted-houses` requests.
+Now, let's create the `HauntedHousesController` class in the `haunted_houses_controller.py` file and 
+implement our first request handler: a `get_houses` method to handle `GET /haunted-houses` requests.
 
 ```python filename="app/haunted_houses/haunted_houses_controller.py"
 from pest import controller, get, post, put, delete
@@ -53,17 +52,19 @@ class HauntedHousesController:
 ```
 
 By decorating the `HauntedHousesController` class with the `@controller` decorator, we are telling
-<PestTag/> that this class is, in fact, a controller and that all the routes defined in it will have
+<PestTag/> that this class serves as a controller, and all the routes defined within it will carry 
 the prefix `/haunted-houses`.
 
 ```python filename="app/haunted_houses/haunted_houses_controller.py"
     service: HauntedHousesService  # 💉 injected
 ```
 
-The `HauntedHousesController` class has a `service` attribute that is of type 
-`HauntedHousesService`. Notice that we are not instantiating the service class, but rather declaring
-it as a class attribute. When <PestTag/> instantiates the controller, it will also instantiate the
-service as a required dependency and inject it into the controller.
+Within the `HauntedHousesController` class, there's a service `service` attribute of type 
+`HauntedHousesService`. It's important to note that we're not creating an instance of the service
+class here; instead, we're declaring it as a class attribute. When <PestTag/> initializes the
+controller, it will automatically instantiate the required service and inject it into the 
+controller.
+
 
 ```python filename="app/haunted_houses/haunted_houses_controller.py"
     @get("/")
@@ -72,32 +73,31 @@ service as a required dependency and inject it into the controller.
         return self.service.get_houses()
 ```
 
-- The `get_houses` method is decorated with the `@get("/")` decorator, which tells <PestTag/> that
-this method will handle `GET` requests to root `/haunted-houses` route.
+- The `get_houses` method is decorated with the `@get("/")` decorator, indicating <PestTag/> that
+  this method will handle `GET` requests to the root `/haunted-houses` route.
 
 - The docstring of the method will be used as the description of the route in the OpenAPI schema.
 
 - The method returns a list of `HauntedHouse` objects; but since `HauntedHouse` is a pydantic model,
-  and <PestTag/> is built on top of <FastapiTag/>, the response will be automatically serialized to 
-  JSON.
+  and <PestTag/> is built on top of <FastapiTag/>, the response is automatically serialized to JSON.
 
-- We don't usually do much inside the controller methods. Instead, we delegate the business logic to
-  a service class. In this case, we are calling the `get_houses` method of the 
-  `HauntedHousesService` class and returning the result. This is not mandatory, but it is a good
-  practice to keep the controller methods as simple as possible. 
+- Typically, we keep controller methods simple, focusing on transport-layer logic like parsing the
+  request and validating it. Business logic is often delegated to a service class. In this case,
+  we call the `get_houses` method of the `HauntedHousesService` class and return the result. While
+  not mandatory, it's a good practice to maintain simplicity in controller methods.
 
-  Ideally, A controller should have transport-layer related logic only, like parsing the request,
-  validating the request, data transformation, etc. The business logic should be delegated to a 
-  service class. <PestTag/> and <FastapiTag/> automatically take care of a lot of theses things for
-  us before even reaching our handler, and after the handler returns.
+  Controllers ideally handle transport-layer-related tasks such as request parsing, validation, and
+  data transformation. <PestTag/> and <FastapiTag/> streamline many of these processes before
+  reaching our handler and after the handler returns.
 
 ### Let's test it!
 
-Before implementing the rest of the controller, let's test what we have so far.
+Before proceeding with the implementation of the rest of the controller, it's time to test what we
+have so far.
 
-In order to do so, we need to go back to the `HauntedHousesModule` class again and add the
-controller class to the `controllers` list in order to register it inside the module so that
-<PestTag/> can find it.
+In order to do so, we need to revisit the `HauntedHousesModule` class again, and include the
+controller class in the `controllers` list. This step ensures that the controller is registered
+within the module, allowing <PestTag/> to discover it.
 
 ```python filename="app/haunted_houses/haunted_houses_module.py" {2,7}
 from pest import module
@@ -113,14 +113,20 @@ class HauntedHousesModule:
     pass
 ```
 
-We are ready to try our route. Let's start the server and make a request to the `/haunted-houses`
-route.
+With the controller now registered, it's time to test our route. Start the server and make a request
+to the `/haunted-houses` route.
 
 ```bash
 $ uvicorn app.main:app --reload
 ```
 
-You should see a JSON list of haunted houses. Nice!
+Open your browser or use a tool like curl to make a GET request:
+
+```bash
+$ curl http://127.0.0.1:8000/haunted-houses
+```
+
+You should observe a JSON list of haunted houses. Great success!
 
 
 ## Define rest of the request handlers (or routes)
@@ -149,18 +155,20 @@ class HauntedHousesController:
         return self.service.get_house_by_id(house_id)
 ```
 
-Nothing too different from the previous route. Except that this time, we are defining a route with
-a path parameter: `/{house_id}`. The path parameter will be passed as an argument to the method.
+Similar to the previous route, the only difference this time is the addition of a path parameter:
+`/{house_id}`. This parameter will be passed as an argument to the `get_house_by_id` method.
 
 This means that the `get_house_by_id` method will receive a `house_id` argument of type `int` and 
 value 1 when the route `/haunted-houses/1` is requested.
 
-By using our service instance, we can get the haunted house by id and return it.
+For instance, when the route `/haunted-houses/1` is requested, the `get_house_by_id` method will 
+receive a` house_id` argument with the value `1`. Using our service instance, we retrieve the haunted house by
+its ID and return it.
 
 ### Create a haunted house
 
-When we want to create stuff, we usually use the `POST` HTTP method. Let's create a route for
-creating haunted houses.
+When it comes to creating entities, the `POST` HTTP method is commonly used. Let's create a route
+and a request handler for creating haunted houses.
 
 ```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
 from pest import controller, get, post, put, delete
@@ -181,19 +189,17 @@ class HauntedHousesController:
         return self.service.create_house(house)
 ```
 
-In order to handle `POST` requests, we use the `@post` decorator. The `create_house`. Our method
-receives a `house` argument of type `HauntedHouse` and returns a `HauntedHouse` object.
+In order to handle `POST` requests, we use the `@post` decorator. The `create_house` method takes a
+house argument of type `HauntedHouse` and returns a `HauntedHouse` object.
 
-The `HauntedHouse` object will be deserialized from the request body. Thanks to `Pydantic` and
-<FastapiTag/>, it will be automatically validated and converted to a `HauntedHouse` object.
-
-Then we delegate the creation of the haunted house to the service we created earlier and return the
-result.
+The `HauntedHouse` object is automatically deserialized from the request body, validated, and 
+converted to a Python object, thanks to the power of `Pydantic` and <FastapiTag/>. We then delegate
+the actual creation of the haunted house to the previously defined service and return the result.
 
 ### Update a haunted house
 
-We use the `PUT` HTTP methods when we want to update stuff. Let's create a route for updating
-haunted houses.
+When it comes to updating entities, we utilize the `PUT` HTTP method. Let's create a route for
+updating haunted houses.
 
 ```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
 from pest import controller, get, post, put, delete
@@ -214,11 +220,20 @@ class HauntedHousesController:
         return self.service.update_house(house_id, updated_house)
 ```
 
-In this case we expect two arguments: `house_id` and `updated_house`. The `house_id` will be passed
-as a path parameter, and the `updated_house` will be deserialized from the request body.
+Here, we define a route for updating haunted houses using the `@put` decorator. The `update_house`
+method expects two arguments: `house_id` as a path parameter, and `updated_house`, which is
+deserialized from the request body.
 
-Again, we delegate the actual business logic to the service and return the result, letting 
-<PestTag/> and <FastapiTag/> take care of the validation, serialization, etc.
+> If you come from <FastapiTag/>, you might find this quite familiar. <PestTag/> is built on top of
+> <FastapiTag/>, so it inherits many of its features. Importantly, <PestTag/> request handlers are,
+> essentially, <FastapiTag/> routes in the background. This means that everything you can do with
+> <FastapiTag/>, you can seamlessly achieve with <PestTag/> handlers. For example, you can leverage
+> <FastapiTag/>'s powerful features for handling body parameters, request validation, and more. 
+> Refer to the [FastAPI documentation](https://fastapi.tiangolo.com/) for detailed insights on
+> utilizing these capabilities.
+
+The business logic for the update is delegated to the service, and the result is returned. As
+before, <PestTag/> and <FastapiTag/> handle tasks like validation and serialization seamlessly.
 
 ### Delete a haunted house
 
@@ -296,10 +311,13 @@ out there, so feel free to use whatever you like.
 
 ## Conclusion
 
-In this section, we learned how to create a controller class and define routes for handling HTTP
-requests. We also learned how to inject dependencies into the controller class and why it is a good
-practice to delegate the business logic to a service class.
+Across this course, we've explored the core concepts of creating APIs with the `pest` framework. 
+From crafting controller classes to defining routes and handling HTTP requests, we've covered the
+essential aspects of API development with `pest`.
 
+Our exploration included insights into dependency injection and the importance of delegating
+business logic to a service. These practices not only enhance modularity but also contribute to the
+maintainability of our API.
 
-
-
+In the upcoming courses, we'll dive into more advanced features like authentication, authorization,
+testing, and more! Stay tuned!

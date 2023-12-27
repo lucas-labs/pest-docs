@@ -6,8 +6,8 @@
         // "theme.config.tsx": true,
         // "next.config.js": true,
         "docs.code-workspace": true,
-        "tailwind.config.js": true,
-        "postcss.config.js": true,
+        // "tailwind.config.js": true,
+        // "postcss.config.js": true,
 
         // 🧼 linters & styles
         "**/**/.prettierrc": true,

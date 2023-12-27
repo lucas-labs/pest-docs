@@ -26,8 +26,8 @@ This service class will act as the business logic layer for managing haunted hou
 from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
 ```
 
-We start by importing the necessary modules. The service relies on the 
-[`HauntedHousesRepository`](1-repository)] to interact with the data.
+We begin by importing the required modules. The service relies on the 
+[`HauntedHousesRepository`](1-repository.mdx) to interact with the data.
 
 ### The `HauntedHousesService` Class
 
@@ -215,9 +215,9 @@ We will use our service as a provider for our controller in the next section.
 
 
 # Conclusion
-In this article, we've covered the step-by-step process of creating the HauntedHousesService class
-in the Pest framework. This service class acts as the core business logic layer, providing methods
-for handling haunted house-related operations.
+In this section, we've covered the step-by-step process of creating the `HauntedHousesService` class
+within the <PestTag/> framework. This service class acts as the core business logic layer, providing
+methods for handling haunted house-related operations.
 
 We also learned about dependency injection and how to register providers in the module. In the next
 section, we'll create the `HauntedHousesController` and learn how we can use our service in the

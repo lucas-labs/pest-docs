@@ -27,7 +27,7 @@ export function Hero() {
                 }>
                     <h1 className={cn('font-bold', 'text-4xl leading-relaxed')}>
                         pest.-&nbsp;
-                        <span className='text-white font-normal'>
+                        <span className='dark:text-white text-[#39465a] font-normal'>
                             python framework for building APIs
                         </span>
                     </h1>

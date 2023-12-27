@@ -1,0 +1,50 @@
+@use 'sass:meta';
+@use 'sass:list';
+@use 'func' as f;
+@use 'color' as c;
+
+@function sanitize($arg) {
+    // if arg ends with _ or - remove it
+    @if f.ends-with($arg, "-") or f.ends-with($arg, "_") {
+        @return str-slice($arg, 1, str-length($arg) - 1);
+    } @else {
+        @return $arg;
+    }
+}
+
+/// crea las variables css para un nested map/list
+@mixin -make-vars($theme, $base: "") {
+    @if not meta.type-of($theme) == 'list' or not meta.type-of($theme) == 'map' {
+        @error 'theme must be a list or map';
+    }
+
+    @if list.length($theme) == 0 {
+        @error 'theme must not be empty';
+    }
+
+    @each $key, $value in $theme {
+        @if meta.type-of($value) == "map" {
+            // if its a map, go recursively
+            $separator: if($base == "", "", "_");
+            @include -make-vars($theme: $value, $base: "#{$base}#{$separator}#{$key}");
+        } @else if $key != null {
+            $separator: if($base == "", "", "_");
+            --#{sanitize(#{$base}#{$separator}#{f.escape-var-name($key)})}: #{$value};
+        }
+    }
+}
+
+// lo llamamos thm (theme) para que no se confunda con la funcion theme de tailwind
+
+/// crea las variables css para un nested map/list
+@mixin thm($theme: (), $scope: null) {
+    @if $scope == 'root' or $scope == ':root' or $scope == '' or $scope == null {
+        :root {
+            @include -make-vars($theme);
+        }
+    } @else {
+        .#{$scope} {
+            @include -make-vars($theme);
+        }
+    }
+}

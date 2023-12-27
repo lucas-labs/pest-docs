@@ -5,10 +5,10 @@ In this section, we'll delve into the implementation details of the `HauntedHous
 This repository acts as a mock storage system for haunted houses, providing basic methods for
 retrieving, creating, updating, and deleting haunted houses.
 
-This is not exactly `pest`-specific, but we will use in this getting-started guide to simulate a
+This is not exactly `pest`-specific, but we will use it in this getting-started guide to simulate a
 database or any other storage system.
 
-We will uses an in-memory list to simulate a database and to provide CRUD (Create, Read, Update,
+We will use an in-memory list to simulate a database and to provide CRUD (Create, Read, Update,
 Delete) operations for haunted house entities.
 
 ## The model
@@ -20,7 +20,7 @@ Let's start by defining the model for our haunted houses. We'll use a python mod
 from pydantic import BaseModel
 
 class HauntedHouse(BaseModel):
-    """A spooky house"""
+    """Model for a spooky house"""
     id: int
     name: str
     ghost_count: int
@@ -28,7 +28,8 @@ class HauntedHouse(BaseModel):
 
 ## The repository
 
-Now, let's create the repository. We'll use a simple list to store our haunted houses:
+Now, let's move on to creating the repository. Our approach is simple: we'll use a basic list to
+store information about our haunted houses.
 
 ```python filename="app/haunted_houses/repository.py" {9-16}
 from pydantic import BaseModel
@@ -49,13 +50,13 @@ class HauntedHousesRepository:
         ]
 ```
 
-The `__init__` method initializes the repository with a list of pre-defined haunted houses. Each 
-haunted house is represented by the `HauntedHouse` class.
+The `__init__` method initializes the repository with a predefined list of haunted houses, where
+each haunted house is represented by an instance of the `HauntedHouse` class.
 
 ## CRUD operations
 
-Now that we have our repository, let's add some methods to perform CRUD operations on it.
-Nothing too fancy here or `pest` related, just standard python... so:
+With our haunted houses repository in place, it's time to implement the standard CRUD (Create, Read,
+Update, Delete) operations. Let's dive into the code and bring our repository to life.
 
 > "Talk is cheap. Show me the code."
 > <b>- Linus Torvalds</b>
@@ -104,8 +105,14 @@ class HauntedHousesRepository:
 
 ```
 
-- `get_all_houses` returns all the haunted houses in the repository.
-- `get_house_by_id` returns a haunted house by its id.
-- `create_house` creates a new haunted house.
-- `update_house` updates an existing haunted house.
-- `delete_house` deletes a haunted house.
+- `get_all_houses`: Returns a list containing all the haunted houses currently stored in the 
+  repository.
+
+- `get_house_by_id`: Retrieves a specific haunted house from the repository based on its unique
+  identifier.
+
+- `create_house`: Adds a new haunted house to the repository.
+
+- `update_house`: Modifies the details of an existing haunted house in the repository.
+
+- `delete_house`: Removes a haunted house from the repository.

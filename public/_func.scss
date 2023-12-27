@@ -1,0 +1,82 @@
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:meta';
+@use 'sass:color';
+@use 'sass:string';
+
+@function ends-with($string, $find) {
+    @return str-length($string) >= str-length($find) and str-slice($string, (str-length($string) - str-length($find) + 1)) == $find;
+}
+
+@function to-hsl($color) {
+    @return color.hue($color) color.saturation($color) color.lightness($color);
+}
+
+@function replace($string, $search, $replace: '') {
+    $index: string.index($string, $search);
+    
+    @if $index {
+      @return string.slice($string, 1, $index - 1) + $replace + replace(string.slice($string, $index + string.length($search)), $search, $replace);
+    }
+    
+    @return $string;
+}
+
+@function str-split($string, $separator) {
+    $split-arr: ();
+    $index : str-index($string, $separator);
+
+    @while $index != null {
+        $item: str-slice($string, 1, $index - 1);
+        $split-arr: list.append($split-arr, $item);
+        $string: str-slice($string, $index + 1);
+        $index : str-index($string, $separator);
+    }
+
+    $split-arr: list.append($split-arr, $string);
+    @return $split-arr;
+}
+
+@function _map-deep-get($map, $keys...) {
+    $scope: $map; $i: 1;
+
+    @while (meta.type-of($scope) == map) and ($i <= list.length($keys)) {
+        $scope: map.get($scope, list.nth($keys, $i));
+        $i: $i + 1;
+    }
+    @return $scope;
+}
+
+/// Receives a map and a key in the form of a 
+/// dot or slash separated string and returns
+/// the value of the key in the map (nested).
+@function get-nested($map, $key) {
+    $key: replace($key, '/', '.');
+    $keys: str-split($key, '.');
+    
+    @return _map-deep-get($map, $keys...);
+}
+
+@function get-keys($map, $prefix: "") {
+    $flat-map: ();
+
+    @each $key, $value in $map {
+        @if meta.type-of($value) == "map" {
+            $flat-map: list.join(
+                $flat-map, 
+                get-keys($value, "#{$prefix}#{$key}_")
+            );
+        } @else {
+            $flat-map: list.append($flat-map, string.quote($prefix+$key+""));
+        }
+    }
+
+    @return $flat-map;
+}
+
+// replace . with \\. 
+// replace % with \\%
+@function escape-var-name($name) {
+    $noDots: replace($name, '.', '\\.');
+    @return replace($noDots, '%', '\\%');
+}
