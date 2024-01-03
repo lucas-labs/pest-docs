@@ -1,5 +1,5 @@
 import { PestTag } from '@components';
-
+import { Terminal } from '@components';
 
 # The `HauntedHousesModule` Feature Module
 
@@ -13,16 +13,18 @@ it with additional components and functionalities.
 
 ## Creating the `HauntedHousesModule`
 
-Let's start by creating the file `app/haunted_houses/haunted_houses_module.py`
+Let's start by creating the file `haunted_houses/houses/haunted_houses_module.py`
 
+<Terminal title="~/haunted-houses">
 ```bash
-$ touch app/haunted_houses/haunted_houses_module.py
+❯ touch haunted_houses/houses/haunted_houses_module.py
 ```
+</Terminal>
 
 A [pest feature module](/overview/modules.mdx#feature-modules) is a python class decorated with the
 `@module` decorator.
 
-```python filename="app/haunted_houses/haunted_houses_module.py"
+```python filename="haunted_houses/houses/haunted_houses_module.py"
 from pest import module
 
 @module()
@@ -38,9 +40,9 @@ Now that we have created the `HauntedHousesModule`, we need to register it in th
 that <PestTag/> can load it.
 
 ```python filename="app/app_module.py" {3,7} /HauntedHousesModule/
-from pest.decorators.module import module
+from pest import module
 
-from .haunted_houses.haunted_houses_module import HauntedHousesModule
+from .houses.haunted_houses_module import HauntedHousesModule
 from .hello.module import HelloModule
 
 @module(

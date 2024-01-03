@@ -1,4 +1,4 @@
-import { InfoBox } from '@components';
+import { InfoBox, Browser, Terminal } from '@components';
 import { FileTree } from 'nextra/components';
 
 # Getting Started with `pest`
@@ -10,9 +10,11 @@ basic API using `pest`.
 
 The first step is to install the `pest` CLI. Open your terminal and execute the following command:
 
+<Terminal title="~/haunted-houses" >
 ```bash
-pip install pest-cli
+❯ pip install pest-cli
 ```
+</Terminal>
 
 > While using the CLI is not mandatory, it simplifies the process of creating new projects.
 > It doesn't need to be a dependency of your project; you can install it globally.
@@ -21,9 +23,11 @@ pip install pest-cli
 
 Now that `pest-cli` is installed, let's kickstart our haunted-houses project:
 
+<Terminal title="~/haunted-houses" >
 ```bash
-pest generate application haunted-houses --dm poetry
+❯ pest generate application haunted-houses --dm poetry
 ```
+</Terminal>
 
 This command creates a new pest project using poetry as the dependency manager. Ensure poetry is
 installed on your machine for this to work. If you don't have poetry installed or don't want to
@@ -36,27 +40,56 @@ dependencies with `pip install -r requirements.txt`, and you're good to go.
 
 Now that the project is created, let's install the dependencies:
 
+<Terminal title="~/haunted-houses" >
 ```bash
-cd haunted-houses
-poetry install
+❯ cd haunted-houses
 ```
+```bash
+❯ poetry install
+```
+</Terminal>
 
 Next, run the project:
 
+<Terminal title="~/haunted-houses" >
 ```bash
-poetry run uvicorn app.main:app --reload
-INFO:     Will watch for changes in these directories: ['D:\\users\\lucas\\Desktop\\appp\\poetry']
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+❯ poetry run uvicorn haunted_houses.main:app --reload
 ```
 
-Open your browser and navigate to http://127.0.0.1:8000; you should see a JSON response similar to
+<div className="mt-4">
+```sh
+INFO:     Will watch for changes in these directories: ['~/haunted-houses']
+INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [21816] using StatReload
+INFO:pest:Initializing haunted-houses
+INFO:pest:Setting up HelloController
+DEBUG:pest:haunted-houses initialized:
+AppModule 🐀
+    │
+    ├─ HelloModule
+        │ ○ GreeterService
+        │ □ HelloController
+
+INFO:     Started server process [24852]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+</div>
+</Terminal>
+
+
+Open your browser and navigate to http://localhost:8000; you should see a JSON response similar to
 this:
 
+
+<Browser url="http://localhost:8000" invert>
 ```json
 {
     "hello": "pest!"
 }
 ```
+</Browser>
+
 
 ## Project structure
 
@@ -89,8 +122,10 @@ that define their own controllers and services. In this instance, the `AppModule
     Here's how the `app_module.py` file looks:
 
     ```python
-    from pest.decorators.module import module
+    from pest import module
+
     from .hello.module import HelloModule
+
 
     @module(
         imports=[HelloModule],
@@ -117,8 +152,10 @@ In the case of `HelloModule`, it encapsulates the greeting feature, composed of 
 
     ```python
     from pest import module
+
     from .greeter_service import GreeterService
     from .hello_controller import HelloController
+
 
     @module(
         controllers=[HelloController],
@@ -152,13 +189,17 @@ response to the client.
     ```python
     from pydantic import BaseModel
 
+
     class Greet(BaseModel):
         """A greeting"""
+
         hello: str
         '''The greeting'''
 
+
     class GreeterService:
         """The haunted house service"""
+
         def say_hello(self) -> Greet:
             """Say hello"""
             return Greet(hello="pest!")
@@ -183,7 +224,9 @@ to the client.
 
     ```python
     from pest import controller, get
+
     from .greeter_service import Greet, GreeterService
+
 
     @controller("/")
     class HelloController:
@@ -204,9 +247,33 @@ to the client.
 ### main.py
 
 This is the entrypoint of the application. It contains the `main` function that starts the
-application. Remember when we ran `poetry run uvicorn app.main:app --reload`? The `app.main:app`
+application. Remember when we ran `poetry run uvicorn haunted_houses.main:app --reload`? The `app.main:app`
 part tells uvicorn to look for the `app` module and the `app` variable inside the `main.py` file
 and mount it as the root application.
+
+<InfoBox title="📄 main.py">
+    Here's how the `main.py` file looks:
+
+    ```python
+    import logging
+
+    from pest import Pest
+
+    from .app_module import AppModule
+
+    logging.basicConfig(level=logging.DEBUG)
+
+
+    app = Pest.create(
+        AppModule,
+        title='haunted-houses'
+    )
+    ```
+
+    The `Pest.create` method creates a new `Pest` application, passing the `AppModule` as the
+    root module and the `title` of the application. The `title` will be then used as the
+    application's title in the OpenAPI specification (e.g. by Swagger UI).
+</InfoBox> 
 
 ## OpenAPI
 
@@ -214,7 +281,17 @@ Thanks to [FastAPI](https://fastapi.tiangolo.com/), pest automatically generates
 specification for your application and mounts a Swagger UI at `/docs` and a ReDoc UI at `/redoc`.
 
 * [`/docs` - Swagger UI](http://localhost:8000/docs)
+
+<Browser url="http://localhost:8000/docs">
+    <img src="/img/swagger.png" alt="swagger docs" />
+</Browser>
+
 * [`/redoc` - ReDoc UI](http://localhost:8000/redoc)
+
+<Browser url="http://localhost:8000/redoc">
+    <img src="/img/redoc.png" alt="redoc docs" />
+</Browser>
+
 
 ## Conclusion
 

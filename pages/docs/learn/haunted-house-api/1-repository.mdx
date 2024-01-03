@@ -1,3 +1,5 @@
+import { Terminal } from '@components';
+
 # Haunted Houses Repository
 
 In this section, we'll delve into the implementation details of the `HauntedHousesRepository`. 
@@ -11,12 +13,20 @@ database or any other storage system.
 We will use an in-memory list to simulate a database and to provide CRUD (Create, Read, Update,
 Delete) operations for haunted house entities.
 
+<Terminal title="~/haunted-houses">
+```bash
+❯ mkdir haunted_houses/houses
+```
+```bash
+❯ touch haunted_houses/houses/repository.py
+```
+</Terminal>
+
 ## The model
 
-Let's start by defining the model for our haunted houses. We'll use a python model for this:
+Let's start by defining the model for our haunted houses. We'll use pydantic for this:
 
-
-```python filename="app/haunted_houses/repository.py" 
+```python filename="haunted_houses/houses/repository.py" 
 from pydantic import BaseModel
 
 class HauntedHouse(BaseModel):
@@ -31,7 +41,7 @@ class HauntedHouse(BaseModel):
 Now, let's move on to creating the repository. Our approach is simple: we'll use a basic list to
 store information about our haunted houses.
 
-```python filename="app/haunted_houses/repository.py" {9-16}
+```python filename="haunted_houses/houses/repository.py" {9-16}
 from pydantic import BaseModel
 
 class HauntedHouse(BaseModel):
@@ -61,7 +71,7 @@ Update, Delete) operations. Let's dive into the code and bring our repository to
 > "Talk is cheap. Show me the code."
 > <b>- Linus Torvalds</b>
 
-```python filename="app/haunted_houses/repository.py" {18-19, 21-22, 24-28, 30-37, 39-40}
+```python filename="haunted_houses/houses/repository.py" {18-19, 21-22, 24-28, 30-37, 39-40}
 from pydantic import BaseModel
 
 class HauntedHouse(BaseModel):

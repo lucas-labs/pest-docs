@@ -1,4 +1,5 @@
 import { PestTag, FastapiTag } from '@components';
+import { Terminal, Browser, Request } from '@components';
 
 
 # The Controller Layer
@@ -24,13 +25,19 @@ the routes defined in the controller.
 Each route is defined by a method, also known as a request handler, decorated with one of the HTTP
 method decorators: `@get`, `@post`, `@put`, `@delete` provided by <PestTag/>.
 
+<Terminal title="~/haunted-houses">
+```bash
+❯ touch haunted_houses/houses/haunted_houses_controller.py
+```
+</Terminal>
+
 Now, let's create the `HauntedHousesController` class in the `haunted_houses_controller.py` file and 
 implement our first request handler: a `get_houses` method to handle `GET /haunted-houses` requests.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py"
+```python filename="haunted_houses/houses/haunted_houses_controller.py"
 from pest import controller, get, post, put, delete
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHouse
+from .repository import HauntedHouse
 
 @controller("/haunted-houses")
 class HauntedHousesController:
@@ -46,7 +53,7 @@ class HauntedHousesController:
 
 A lot is going on in this small code snippet, so let's break it down.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py"
+```python filename="haunted_houses/houses/haunted_houses_controller.py"
 @controller("/haunted-houses")
 class HauntedHousesController:
 ```
@@ -55,7 +62,7 @@ By decorating the `HauntedHousesController` class with the `@controller` decorat
 <PestTag/> that this class serves as a controller, and all the routes defined within it will carry 
 the prefix `/haunted-houses`.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py"
+```python filename="haunted_houses/houses/haunted_houses_controller.py"
     service: HauntedHousesService  # 💉 injected
 ```
 
@@ -66,7 +73,7 @@ controller, it will automatically instantiate the required service and inject it
 controller.
 
 
-```python filename="app/haunted_houses/haunted_houses_controller.py"
+```python filename="haunted_houses/houses/haunted_houses_controller.py"
     @get("/")
     def get_houses(self) -> list[HauntedHouse]:
         """Get all haunted houses"""
@@ -99,11 +106,11 @@ In order to do so, we need to revisit the `HauntedHousesModule` class again, and
 controller class in the `controllers` list. This step ensures that the controller is registered
 within the module, allowing <PestTag/> to discover it.
 
-```python filename="app/haunted_houses/haunted_houses_module.py" {2,7}
+```python filename="haunted_houses/houses/haunted_houses_module.py" {2,7}
 from pest import module
 from .haunted_houses_controller import HauntedHousesController
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHousesRepository
+from .repository import HauntedHousesRepository
 
 @module(
     controllers=[HauntedHousesController],
@@ -116,30 +123,48 @@ class HauntedHousesModule:
 With the controller now registered, it's time to test our route. Start the server and make a request
 to the `/haunted-houses` route.
 
+<Terminal title="~/haunted-houses">
 ```bash
-$ uvicorn app.main:app --reload
+❯ uvicorn haunted_houses.main:app --reload
 ```
+</Terminal>
 
-Open your browser or use a tool like curl to make a GET request:
+Open your browser or use a tool like curl, postman, etc. to send a **GET** request:
 
-```bash
-$ curl http://127.0.0.1:8000/haunted-houses
+<Request method="GET" url="http://localhost:8000/haunted-houses/">
+<Request.Response code={200}>
+```json
+[
+  {
+    "id": 1,
+    "name": "Spooky Manor",
+    "ghost_count": 5
+  },
+  {
+    "id": 2,
+    "name": "Eerie Estate",
+    "ghost_count": 3
+  }
+]
 ```
+</Request.Response>
+</Request>
 
-You should observe a JSON list of haunted houses. Great success!
+If everything went well, you should see the list of our haunted houses in the response as a JSON 
+array. Hurrah! We have our first route up and running!
 
 
-## Define rest of the request handlers (or routes)
+## Define the rest of the request handlers (or routes)
 
 Now that we know how to define a route, let's define the rest of the routes for managing all the
 CRUD operations for haunted houses.
 
 ### Get a haunted house by id
 
-```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+```python filename="haunted_houses/houses/haunted_houses_controller.py" {13-16}
 from pest import controller, get, post, put, delete
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHouse
+from .repository import HauntedHouse
 
 @controller("/haunted-houses")
 class HauntedHousesController:
@@ -159,18 +184,32 @@ Similar to the previous route, the only difference this time is the addition of 
 `/{house_id}`. This parameter will be passed as an argument to the `get_house_by_id` method.
 
 For instance, when the route `/haunted-houses/1` is requested, the `get_house_by_id` method will 
-receive a` house_id` argument with the value `1`. Using our service instance, we retrieve the haunted house by
-its ID and return it.
+receive a` house_id` argument with the value `1`. Using our service instance, we retrieve the 
+haunted house by its ID and return it.
+
+Let's test it!
+
+<Request method="GET" url="http://localhost:8000/haunted-houses/1">
+<Request.Response code={200}>
+```json
+{
+  "id": 1,
+  "name": "Spooky Manor",
+  "ghost_count": 5
+}
+```
+</Request.Response>
+</Request>
 
 ### Create a haunted house
 
 When it comes to creating entities, the `POST` HTTP method is commonly used. Let's create a route
 and a request handler for creating haunted houses.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+```python filename="haunted_houses/houses/haunted_houses_controller.py" {13-16}
 from pest import controller, get, post, put, delete
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHouse
+from .repository import HauntedHouse
 
 @controller("/haunted-houses")
 class HauntedHousesController:
@@ -193,15 +232,133 @@ The `HauntedHouse` object is automatically deserialized from the request body, v
 converted to a Python object, thanks to the power of `Pydantic` and <FastapiTag/>. We then delegate
 the actual creation of the haunted house to the previously defined service and return the result.
 
+Time to give it a try!
+
+<Request method="POST" url="http://localhost:8000/haunted-houses/">
+<Request.Body>
+```json
+{
+    "id": 3,
+    "name": "Creepy Cottage",
+    "ghost_count": 8
+}
+```
+</Request.Body>
+<Request.Response code={200}>
+```json
+{
+    "id": 3,
+    "name": "Creepy Cottage",
+    "ghost_count": 8
+}
+```
+</Request.Response>
+</Request>
+
+Nice! Apparently, our haunted house was successfully created. Let's check if it's in the list of
+haunted houses by making a `GET` request to the `/haunted-houses` route.
+
+<Request method="GET" url="http://localhost:8000/haunted-houses/">
+<Request.Response code={200}>
+```json
+[
+  {
+    "id": 1,
+    "name": "Spooky Manor",
+    "ghost_count": 5
+  },
+  {
+    "id": 2,
+    "name": "Eerie Estate",
+    "ghost_count": 3
+  }
+]
+```
+</Request.Response>
+</Request>
+
+Oh no! It looks like our new haunted house was not saved 😢
+
+#### What's going on here?
+
+By default, <PestTag/> registers all providers with a transient 
+[scope](/docs/overview/providers#scopes). 
+This means that a new instance of the provider is created every time it's injected into a controller
+or another provider.
+
+That's the case of our `HauntedHousesRepository` class. Every time the `HauntedHousesService` class
+is instantiated, a new instance of the `HauntedHousesRepository` class is created and injected into
+the service. This behavior might be desirable in most cases, but not in this one because we want to
+keep the list of haunted houses in memory.
+
+Let's change the scope of the `HauntedHousesRepository` class to a singleton. This way, only one
+instance of the repository will be created and shared across the application.
+
+```python filename="haunted_houses/houses/haunted_houses_module.py" {2,13-16}
+from pest import module
+from pest.metadata.types.module_meta import ValueProvider
+
+from .haunted_houses_controller import HauntedHousesController
+from .haunted_houses_service import HauntedHousesService
+from .repository import HauntedHousesRepository
+
+
+@module(
+    controllers=[HauntedHousesController],
+    providers=[
+        HauntedHousesService,
+        ValueProvider(
+            provide=HauntedHousesRepository,
+            use_value=HauntedHousesRepository(),
+        ),
+    ],
+)
+class HauntedHousesModule:
+    pass
+```
+
+Now, instead of registering the `HauntedHousesRepository` class, we register a `ValueProvider` with
+a specific instance of the repository. This way, the same instance of the repository will be shared
+across the application.
+
+Now if we create our haunted house again and then try to retrieve the list of haunted houses, we
+should see our new haunted house in the list:
+
+<Request method="GET" url="http://localhost:8000/haunted-houses/">
+<Request.Response code={200}>
+```json
+[
+  {
+    "id": 1,
+    "name": "Spooky Manor",
+    "ghost_count": 5
+  },
+  {
+    "id": 2,
+    "name": "Eerie Estate",
+    "ghost_count": 3
+  },
+  {
+    "id": 3,
+    "name": "Creepy Cottage",
+    "ghost_count": 8
+  }
+]
+```
+</Request.Response>
+</Request>
+
+Beautiful! 🍾
+
 ### Update a haunted house
 
 When it comes to updating entities, we utilize the `PUT` HTTP method. Let's create a route for
 updating haunted houses.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+```python filename="haunted_houses/houses/haunted_houses_controller.py" {13-16}
 from pest import controller, get, post, put, delete
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHouse
+from .repository import HauntedHouse
 
 @controller("/haunted-houses")
 class HauntedHousesController:
@@ -232,14 +389,39 @@ deserialized from the request body.
 The business logic for the update is delegated to the service, and the result is returned. As
 before, <PestTag/> and <FastapiTag/> handle tasks like validation and serialization seamlessly.
 
+
+Apparently, we found 2 more ghosts in our `Spooky Manor` haunted house. Let's update it!
+
+<Request method="PUT" url="http://localhost:8000/haunted-houses/3">
+<Request.Body>
+```json
+{
+    "id": 3,
+    "name": "Spooky Manor",
+    "ghost_count": 7
+}
+```
+</Request.Body>
+<Request.Response code={200}>
+```json
+{
+    "id": 3,
+    "name": "Spooky Manor",
+    "ghost_count": 7
+}
+```
+</Request.Response>
+</Request>
+
 ### Delete a haunted house
 
-Finally, we need a route for deleting haunted houses. We use the `DELETE` HTTP method for that.
+Finally, we need a route for deleting haunted houses (once all the ghosts are gone, of course 😛).
+We use the `DELETE` HTTP method for that.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py" {13-16}
+```python filename="haunted_houses/houses/haunted_houses_controller.py" {13-16}
 from pest import controller, get, post, put, delete
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHouse
+from .repository import HauntedHouse
 
 @controller("/haunted-houses")
 class HauntedHousesController:
@@ -255,16 +437,30 @@ class HauntedHousesController:
         self.service.delete_house(house_id)
 ```
 
+If we send a `DELETE` request to the `/haunted-houses/1` route, the `delete_house` method will be
+called with the `house_id` argument set to `1`. The service will then communicate with the
+repository to delete the haunted house.
+
+Let's try it out!
+
+<Request method="DELETE" url="http://localhost:8000/haunted-houses/3">
+<Request.Response code={200}>
+</Request.Response>
+</Request>
+
+If we try to retrieve the list of haunted houses again, we should see that the `Spooky Manor` is 
+gone with all its ghosts 👻
+
 There we go! We have all the routes we need to manage haunted houses.
 
 ### The entire controller
 
 At this point, our controller should look like this.
 
-```python filename="app/haunted_houses/haunted_houses_controller.py"
+```python filename="haunted_houses/houses/haunted_houses_controller.py"
 from pest import controller, get, post, put, delete
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHouse
+from .repository import HauntedHouse
 
 @controller("/haunted-houses")
 class HauntedHousesController:
@@ -297,14 +493,7 @@ class HauntedHousesController:
         self.service.delete_house(house_id)
 ```
 
-All the CRUD operations for haunted houses are now implemented. Let's try them out!
-
-In order to test the routes with methods other than `GET`, we need a tool that allows us to make
-requests with different HTTP methods. We can use `curl` for that, but if you want a more user
-friendly tool, I recommend [Insomnia](https://insomnia.rest/) or the 
-[Thunder Client](https://www.thunderclient.io/) extension for VSCode. There are many other tools
-out there, so feel free to use whatever you like.
-
+All the CRUD operations for haunted houses are now implemented. Yay! 🎉
 
 ## Conclusion
 

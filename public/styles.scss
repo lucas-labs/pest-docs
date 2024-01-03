@@ -1,114 +1,21 @@
 @use 'color' as c;
+@use 'nextra' as n;
+@use 'tw' as tw;
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@include n.apply_nextra_theme();
 
-html,
-body {
-    font-family: 'Inter', sans-serif !important;
+@layer base {
+    @include tw.thm(
+        $theme: (
+            'color': (
+                'brand': #{c.get('brand')},
+            )
+        )
+    );
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    color: c.$secondary !important;
-}
-
-code,
-kbd,
-samp,
-pre {
-    font-family:
-        'Source Code Pro',
-        SFMono-Regular,
-        Menlo,
-        Monaco,
-        Consolas,
-        Liberation Mono,
-        Courier New,
-        monospace !important;
-}
-
-:is(html[class~='dark']) {
-    body {
-        background-color: rgba(c.$bg, 1) !important;
-    }
-
-    .dark\:nx-bg-dark {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        border: 0;
-    }
-
-    :is(html[class~='dark'] .dark\:nx-border-neutral-800) {
-        border-color: hsl(
-            var(--nextra-primary-hue) var(--nextra-primary-saturation) 94%/0.1
-        ) !important;
-    }
-
-    :is(html[class~='dark'] .dark\:before\:nx-bg-neutral-800):before {
-        background-color: hsl(
-            var(--nextra-primary-hue) var(--nextra-primary-saturation) 94%/0.1
-        ) !important;
-    }
-
-    :is(html[class~='dark'] .dark\:nx-bg-neutral-800) {
-        background-color: rgba(c.$bg, 1) !important;
-    }
-
-    :is(html[class~='dark'] .subheading-anchor):after {
-        color: rgba(c.$secondary, 0.3) !important;
-    }
-
-    :is(html[class~='dark'] .nextra-search ul) {
-        background-color: rgba(c.$bg, 1) !important;
-    }
-
-    :is(html[class~='dark'] .dark\:nx-bg-neutral-900) {
-        background-color: rgba(c.$bg, 1) !important;
-    }
-
-    .nextra-search {
-        input {
-            background-color: rgba(c.$level1, 0.4) !important;
-        }
-    }
-}
-
-:root {
-    --nextra-navbar-height: 100px;
-}
-
-:is(html[class~='dark'] .nextra-nav-container-blur) {
-    background-color: rgba(c.$bg, 0.8) !important;
-}
-
-:is(html[class~=dark] .dark\:nx-bg-white\/10) {
-    background-color: rgb(217, 72, 0, .05);
-}
-
-.nextra-nav-container-blur {
-    --tw-shadow: none !important;
-}
-
-aside,
-nav.nextra-toc {
-    top: 100px !important;
-}
-
-nav.nextra-toc {
-    position: sticky;
-    height: 100%;
-}
-
-body {
-    font-feature-settings:
-        'rlig' 1,
-        'calt' 1;
-}

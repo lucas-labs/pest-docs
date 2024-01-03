@@ -7,6 +7,6 @@
 	"settings": {
 		"typescript.tsdk": ".yarn/sdks/typescript/lib",
 		"typescript.enablePromptUseWorkspaceTsdk": true,
-		"tailwindCSS.experimental.configFile": "./tailwind.config.js",
+		"tailwindCSS.experimental.configFile": "./tailwind.config.ts",
 	}
 }

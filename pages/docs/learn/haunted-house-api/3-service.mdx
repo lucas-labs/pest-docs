@@ -1,4 +1,5 @@
 import { PestTag } from '@components';
+import { Terminal } from '@components';
 
 
 # Service Layer
@@ -14,16 +15,22 @@ repository (which deals with data storage). It encapsulates the business logic a
 controllers remain lightweight and focused on handling user input.
 
 
-## `HauntedHousesService`
+## Haunted Houses Service
 
 We'll walk through the step-by-step process of creating the `HauntedHousesService` provider. 
 This service class will act as the business logic layer for managing haunted houses in our API.
 
+<Terminal title="~/haunted-houses">
+```bash
+❯ touch haunted_houses/houses/haunted_houses_service.py
+```
+</Terminal>
+
 
 ### Importing Dependencies
 
-```python filename="app/haunted_houses/haunted_houses_service.py"
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py"
+from .repository import HauntedHousesRepository, HauntedHouse
 ```
 
 We begin by importing the required modules. The service relies on the 
@@ -35,8 +42,8 @@ The first thing we need in our service is a reference to the repository. We'll u
 injection to inject the repository into the service. 
 
 
-```python filename="app/haunted_houses/haunted_houses_service.py" {1, 6}
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py" {1, 6}
+from .repository import HauntedHousesRepository, HauntedHouse
 
 class HauntedHousesService:
     """The haunted houses service"""
@@ -50,8 +57,8 @@ In our API, we will have a `GET /haunted-houses` endpoint that returns a list of
 Let's create a method in our service to serve this purpose.
 
 
-```python filename="app/haunted_houses/haunted_houses_service.py" {8-10}
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py" {8-10}
+from .repository import HauntedHousesRepository, HauntedHouse
 
 class HauntedHousesService:
     """The haunted houses service"""
@@ -70,8 +77,8 @@ The `get_houses` method simply delegates the call to the repository wich returns
 
 We'll also need a method to get a single haunted house by its ID. Let's create a method for that.
 
-```python filename="app/haunted_houses/haunted_houses_service.py" {12-14}
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py" {12-14}
+from .repository import HauntedHousesRepository, HauntedHouse
 
 class HauntedHousesService:
     """The haunted houses service"""
@@ -92,8 +99,8 @@ class HauntedHousesService:
 In order to provide the necessary business logic for creating a new haunted house, we'll need to
 create a `create_house` method in our service.
 
-```python filename="app/haunted_houses/haunted_houses_service.py" {16-18}
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py" {16-18}
+from .repository import HauntedHousesRepository, HauntedHouse
 
 class HauntedHousesService:
     """The haunted houses service"""
@@ -117,8 +124,8 @@ class HauntedHousesService:
 
 The `update_house` method will be responsible for updating an existing haunted house.
 
-```python filename="app/haunted_houses/haunted_houses_service.py" {20-24}
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py" {20-24}
+from .repository import HauntedHousesRepository, HauntedHouse
 
 class HauntedHousesService:
     """The haunted houses service"""
@@ -147,8 +154,8 @@ class HauntedHousesService:
 Finally, we'll need to be able to delete a haunted house. We'll create a `delete_house` method for
 that.
 
-```python filename="app/haunted_houses/haunted_houses_service.py" {24-29}
-from .haunted_houses_repository import HauntedHousesRepository, HauntedHouse
+```python filename="haunted_houses/houses/haunted_houses_service.py" {24-29}
+from .repository import HauntedHousesRepository, HauntedHouse
 
 class HauntedHousesService:
     """The haunted houses service"""
@@ -185,9 +192,9 @@ service. This means that we will need to register the repository as a provider i
 When we talked about the [`HauntedHousesModule`](2-feature-module.mdx), we mentioned that we will be
 comming back to it later. Now is the time to do that.
 
-```python filename="app/haunted_houses/haunted_houses_module.py" {2,5}
+```python filename="haunted_houses/houses/haunted_houses_module.py" {2,5}
 from pest import module
-from .haunted_houses_repository import HauntedHousesRepository
+from .repository import HauntedHousesRepository
 
 @module(
     providers=[HauntedHousesRepository],
@@ -199,10 +206,10 @@ class HauntedHousesModule:
 And now that we are here, we can also register the `HauntedHousesService` as a provider in the
 module. 
 
-```python filename="app/haunted_houses/haunted_houses_module.py" {2,6} /HauntedHousesService/
+```python filename="haunted_houses/houses/haunted_houses_module.py" {2,6} /HauntedHousesService/
 from pest import module
 from .haunted_houses_service import HauntedHousesService
-from .haunted_houses_repository import HauntedHousesRepository
+from .repository import HauntedHousesRepository
 
 @module(
     providers=[HauntedHousesService, HauntedHousesRepository],
